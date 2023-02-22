@@ -20,6 +20,8 @@ target_link_libraries(test_proj
 											pico_cyw43_arch_none
 											)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # enable usb output, disable uart output
 pico_enable_stdio_usb(test_proj 1)
 pico_enable_stdio_uart(test_proj 0)
