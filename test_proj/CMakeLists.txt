@@ -11,16 +11,18 @@ pico_sdk_init()
 
 # rest of your project
 add_executable(test_proj
-	test.c
+	test.c test_functionality.c
 	)
 
 # Add pico_stdlib library which aggregates commonly used features
 target_link_libraries(test_proj 
 											pico_stdlib
 											pico_cyw43_arch_none
+											hardware_irq
 											)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(PICO_TIME_DEFAULT_ALARM_POOL_DISABLED 1)
 
 # enable usb output, disable uart output
 pico_enable_stdio_usb(test_proj 1)
