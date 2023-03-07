@@ -1,7 +1,7 @@
 #include "test_functionality.h"
 // #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
-#include "hardware/timer.h"
+// #include "hardware/timer.h"
 
 void flasher() 
 {
@@ -63,13 +63,51 @@ void echo()
 
 // TIMER STUFF
 
+uint64_t get_time(void) {
+	// Reading low latches the high value
+	uint32_t lo = timer_hw->timelr;
+	uint32_t hi = timer_hw->timehr;
+	return ((uint64_t) hi << 32u) | lo;
+}
+
+uint64_t get_time_from_timer(alarm_id_t id)
+{
+	uint32_t lo = timer_hw->timelr;
+	uint32_t hi = timer_hw->timehr;
+	return ((uint64_t) hi << 32u) | lo;
+}
+
 int64_t alarmCallback(alarm_id_t id, void *user_data)
 {
 	printf("alarm callback %d\n", id);
 }
 
+bool repeatingAlarmCallback(struct repeating_timer *t)
+{
+	printf("Repeating alarm callback %d\n", time_us_64());
+	return true;
+}
+
+bool testSecondaryRepeatingAlarmCallback(struct repeating_timer *t)
+{
+	printf("Second alarm callback %d\n", time_us_64());
+	return true;
+}
+
 void setAlarm()
 {
-	struct repeating_timer_t timer;
-	add_alarm_in_ms(2000, alarmCallback, NULL, &timer);
+	add_alarm_in_ms(2000, alarmCallback, NULL, false);
+}
+
+void setRepeatingAlarm()
+{
+	struct repeating_timer timer;
+	add_repeating_timer_ms(1000, repeatingAlarmCallback, NULL, &timer);
+}
+
+void toggleLed()
+{
+	static bool l = false;
+	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, l);
+	l = !l;
 }
