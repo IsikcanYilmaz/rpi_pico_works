@@ -9,3 +9,5 @@
 
 void UserInput_Init(void);
 void UserInput_Service(void);
+void UserInput_StartPollTimer(void);
+void UserInput_StopPollTimer(void);

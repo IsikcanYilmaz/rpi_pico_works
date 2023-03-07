@@ -2,8 +2,6 @@
 #include "hardware/timer.h"
 #include "pico/stdlib.h"
 #include "hardware/timer.h"
-#include "pico/stdio_usb.h"
-#include "pico/stdio/driver.h"
 #include <stdio.h>
 #include <string.h>
 #include "test_functionality.h"
@@ -12,58 +10,63 @@
 char usrInputBuf[USER_INPUT_BUF_LEN];
 uint32_t usrInputIdx = 0;
 uint32_t usrInputPrintedIdx = 0;
-volatile bool usrInputCharAvail = false;
-volatile uint8_t test = 0;
-volatile int testchar = 0;
 struct repeating_timer printCurrentLineTimer, userInputPollTimer;
-
-extern stdio_driver_t stdio_usb;
-
-static bool UserInput_PrintCurrentCharTimerCallback(struct repeating_timer *t)
-{
-	// while(usrInputPrintedIdx != usrInputIdx)
-	// {
-	// 	printf("%c", usrInputBuf[usrInputPrintedIdx]);
-	// 	usrInputPrintedIdx++;
-	// }
-	// printf("Repeating alarm callback %d\n", time_us_64());
-	// toggleLed();
-	// printf("%s:%d->%d\n", "ASD", usrInputPrintedIdx, usrInputIdx);
-	return true;
-}
-
-static void UserInput_CommandEntered(char *buf)
-{
-	printf("CMD: %s\n", buf);
-}
 
 static void UserInput_CharAvailCallback(void *args)
 {
-	// int c = 0;
-	// while(c != PICO_ERROR_TIMEOUT) // TODO this may loop forever?
+}
+
+static void UserInput_ParseInputLine(char *buf)
+{
+	char *argv[USER_COMMAND_MAX_ARGS];
+	uint16_t argc = 0;
+	char *parseIdx = buf;
+	char *arg = parseIdx;
+	
+	// see if this is a single command or if we have args
+	while(true)
+	{
+		while(*parseIdx != ' ' && *parseIdx != '\0')
+		{
+			parseIdx++; // TODO point of interest. potential inf loop
+		}
+
+		// We skipped the word. parseIdx now points to a space or a null
+		argv[argc] = arg;
+		argc++;
+		
+		// If this is the end of the line
+		if (*parseIdx == '\0')
+		{
+			// Parsing done
+			break;
+		}
+
+		// if this is not the end we're at a space. skip all the spaces
+		*parseIdx = '\0';
+		parseIdx++;
+		while (*parseIdx == ' ')
+		{
+			parseIdx++;
+		}
+		arg = parseIdx;
+		if (*parseIdx == '\0')
+		{
+			// there were trailing spaces at the very end of the cmd line
+			break;
+		}
+	}
+	// UserCommand_PrintCommand(argc, argv);
+
+	// We have the command and args parsed now. do a lookup to see
+	// which command is entered and call its function
+	// for (uint16_t i = 0; i < (sizeof(userCommands) / sizeof(userCommands[0])); i++)
 	// {
-	// 	c = (int) getchar_timeout_us();
-	// 	// if (c == USER_INPUT_ENTER_CHAR)
-	// 	// {
-	// 	// 	usrInputBuf[usrInputIdx] = 0x00;
-	// 	// 	UserInput_CommandEntered((char *) &usrInputBuf);
-	// 	// 	break;
-	// 	// }
-	// 	if (c == PICO_ERROR_TIMEOUT)
+	// 	if (strcmp(userCommands[i].command, argv[0]) == 0)
 	// 	{
-	// 		break;
-	// 	}
-	// 	toggleLed();
-	// 	usrInputBuf[usrInputIdx] = (char)c;
-	// 	usrInputIdx++;
-	// 	if (usrInputIdx > USER_INPUT_BUF_LEN)
-	// 	{
-	// 		usrInputIdx = 0; // TODO 
+	// 		printf("COMMAND %s\n", argv[0]); // TODO
 	// 	}
 	// }
-	usrInputCharAvail = true;
-	toggleLed();
-	test++;
 }
 
 static bool UserInput_InputPollTimerCallback(struct repeating_timer_t *t)
@@ -81,13 +84,16 @@ static bool UserInput_InputPollTimerCallback(struct repeating_timer_t *t)
 	{
 		usrInputBuf[usrInputIdx] = '\0';
 		printf("\nCMD:%s\n", usrInputBuf);
-		UserCommand_ProcessInputLine((char *) &usrInputBuf);
+		// UserCommand_ProcessInputLine((char *) &usrInputBuf);
+		// UserCommand_RequestService();
+		UserInput_ParseInputLine((char *) &usrInputBuf);
 		usrInputIdx = 0;
 	}
 	else if (c == USER_INPUT_BKSPACE_CHAR)
 	{
 		if (usrInputIdx > 0)
 		{
+			usrInputBuf[usrInputIdx] = '\0';
 			printf("\b \b");
 			usrInputIdx -= (usrInputIdx > 0 ? 1 : 0);
 		}
@@ -101,54 +107,23 @@ static bool UserInput_InputPollTimerCallback(struct repeating_timer_t *t)
 	return true;
 }
 
+void UserInput_StartPollTimer(void)
+{
+	add_repeating_timer_ms(USER_INPUT_POLL_PERIOD_MS, UserInput_InputPollTimerCallback, NULL, &userInputPollTimer);
+}
+
+void UserInput_StopPollTimer(void)
+{
+	cancel_repeating_timer(&userInputPollTimer);
+}
+
 void UserInput_Init(void)
 {
 	memset((void *) &usrInputBuf, 0x00, sizeof(usrInputBuf));
 	// stdio_set_chars_available_callback(UserInput_CharAvailCallback, NULL);
-	// add_repeating_timer_ms(USER_INPUT_PRINT_CURRENT_CHAR_PERIOD_MS, UserInput_PrintCurrentCharTimerCallback, NULL, &printCurrentLineTimer);
-	add_repeating_timer_ms(USER_INPUT_POLL_PERIOD_MS, UserInput_InputPollTimerCallback, NULL, &userInputPollTimer);
+	UserInput_StartPollTimer();
 }
 
 void UserInput_Service(void)
 {
-	// static stdio_driver_t *drivers;
-	// for (stdio_driver_t *driver = drivers; driver; driver = driver->next)
-	// {
-	//
-	// }
-	// stdio_usb.in_chars((char *) &testchar, 1);
-	// printf("TEST %d TESTCHAR %d\n", test, testchar);
-	// if (usrInputCharAvail)
-	// {
-	// 	usrInputCharAvail = false;
-	// 	char c = (char) 0x00;
-	// 	while (true)
-	// 	{
-	// 		c = getchar_timeout_us(0);
-	// 		if (c == PICO_ERROR_TIMEOUT)
-	// 		{
-	// 			break;
-	// 		}
-	// 		
-	// 		// printf("%c", c);
-	// 		toggleLed();
-	// 		if (c == USER_INPUT_ENTER_CHAR)
-	// 		{
-	// 			usrInputBuf[usrInputIdx] = '\0';
-	// 			printf("CMD: %s\n", usrInputBuf);
-	// 			usrInputIdx = 0;
-	// 			break;
-	// 		}
-	//
-	// 		usrInputBuf[usrInputIdx] = c;
-	// 		usrInputIdx++;
-	// 	}
-	// }
-	// printf("%d->%d %c\n", usrInputPrintedIdx, usrInputIdx, getchar_timeout_us(0));
-	// while (usrInputPrintedIdx != usrInputIdx)
-	// {
-	// 	printf("%c", usrInputBuf[usrInputPrintedIdx]);
-	// 	usrInputPrintedIdx++;
-	// 	toggleLed();
-	// }
 }

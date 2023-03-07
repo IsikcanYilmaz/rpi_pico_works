@@ -3,9 +3,13 @@
 typedef struct UserCommand_s
 {
 	char *command;
-	void (*fn)(uint8_t argc, void *argv);
+	void (*fn)(uint8_t argc, char **argv);
 	char *helptext;
 } UserCommand_t;
 
+void UserCommand_Init(void);
+void UserCommand_Service(void);
+void UserCommand_RequestService(void);
 void UserCommand_ProcessInputLine(char *buf);
-void UserCommand_Reset(uint8_t argc, void *argv);
+void UserCommand_Reset(uint8_t argc, char **argv);
+void UserCommand_Test(uint8_t argc, char **argv);
