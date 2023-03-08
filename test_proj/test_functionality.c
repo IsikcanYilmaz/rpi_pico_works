@@ -108,6 +108,11 @@ void setRepeatingAlarm()
 void toggleLed()
 {
 	static bool l = false;
-	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, l);
 	l = !l;
+	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, l);
+}
+
+void setLed(bool on)
+{
+	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, (on ? 1 : 0));
 }

@@ -63,6 +63,11 @@ static void UserInput_ParseInputLine(char *buf, uint16_t *argc, char **argv, uin
 	}
 }
 
+static void UserInput_ParseInputLineInternal(void)
+{
+	UserInput_ParseInputLine((char *) &usrInputBuf, &usrCommandArgc, usrCommandArgs, usrInputIdx+1);
+}
+
 static bool UserInput_InputPollTimerCallback(struct repeating_timer_t *t)
 {
 	int c = getchar_timeout_us(0);
@@ -80,7 +85,7 @@ static bool UserInput_InputPollTimerCallback(struct repeating_timer_t *t)
 		printf("\n");
 		// UserCommand_ProcessInputLine((char *) &usrInputBuf);
 		// UserCommand_RequestService();
-		UserInput_ParseInputLine((char *) &usrInputBuf, &usrCommandArgc, usrCommandArgs, usrInputIdx+1);
+		UserInput_ParseInputLineInternal();
 		commandReady = true;
 		usrInputIdx = 0;
 	}

@@ -9,4 +9,5 @@ bool testSecondaryRepeatingAlarmCallback(struct repeating_timer *t);
 void setAlarm();
 void setRepeatingAlarm();
 void toggleLed();
+void setLed(bool on);
 uint64_t get_time(void);
