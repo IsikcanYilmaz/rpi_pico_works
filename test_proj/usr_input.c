@@ -10,10 +10,9 @@
 char usrInputBuf[USER_INPUT_BUF_LEN];
 char usrCommandBuf[USER_INPUT_BUF_LEN];
 char *usrCommandArgs[USER_COMMAND_MAX_ARGS];
-uint16_t usrCommandArgc = 0;
-uint32_t usrInputIdx = 0;
-uint32_t usrInputPrintedIdx = 0;
-struct repeating_timer printCurrentLineTimer, userInputPollTimer;
+volatile uint16_t usrCommandArgc = 0;
+volatile uint32_t usrInputIdx = 0;
+struct repeating_timer userInputPollTimer;
 volatile bool commandReady = false;
 
 static void UserInput_CharAvailCallback(void *args)
@@ -38,7 +37,7 @@ static void UserInput_ParseInputLine(char *buf, uint16_t *argc, char **argv, uin
 
 		// We skipped the word. parseIdx now points to a space or a null
 		argv[*argc] = arg;
-		*argc++;
+		(*argc)++;
 		
 		// If this is the end of the line
 		if (*parseIdx == '\0')

@@ -9,6 +9,7 @@ UserCommand_t userCommands[] = {
 	{"reset", UserCommand_Reset, "Reset the board into boot mode"},
 	{"test", UserCommand_Test, "test"},
 	{"led", UserCommand_LedSet, "Set Led"},
+	{"loopback", UserCommand_Loopback, "Loopback"}
 };
 
 static void UserCommand_PrintCommand(uint16_t argc, char **argv)
@@ -17,7 +18,6 @@ static void UserCommand_PrintCommand(uint16_t argc, char **argv)
 	for (uint16_t i = 0; i < argc; i++)
 	{
 		printf("%s ", argv[i]);
-		// printf("%s.\n", argv[i]);
 	}
 	printf("\n");
 }
@@ -30,12 +30,13 @@ void UserCommand_ProcessCommand(uint16_t argc, char **argv)
 	{
 		if (strcmp(userCommands[i].command, argv[0]) == 0)
 		{
-			// printf("COMMAND %s\n", argv[0]); // TODO
+			// printf("COMMAND %s argc %d\n", argv[0], argc); // TODO
 			userCommands[i].fn(argc, argv);
 		}
 	}
 }
 
+// COMMANDS // 
 void UserCommand_Reset(uint8_t argc, char **argv)
 {
 	printf("Resetting!...\n");
@@ -51,4 +52,13 @@ void UserCommand_LedSet(uint8_t argc, char **argv)
 {
 	bool boolArg = (atoi(argv[1]) > 0);
 	setLed(boolArg);
+}
+
+void UserCommand_Loopback(uint8_t argc, char **argv)
+{
+	for (uint16_t i = 0; i < argc; i++)
+	{
+		printf("%s ", argv[i]);
+	}
+	printf("\n");
 }
