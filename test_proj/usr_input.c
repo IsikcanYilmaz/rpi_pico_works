@@ -8,20 +8,25 @@
 #include "usr_commands.h"
 
 char usrInputBuf[USER_INPUT_BUF_LEN];
+char usrCommandBuf[USER_INPUT_BUF_LEN];
+char *usrCommandArgs[USER_COMMAND_MAX_ARGS];
+uint16_t usrCommandArgc = 0;
 uint32_t usrInputIdx = 0;
 uint32_t usrInputPrintedIdx = 0;
 struct repeating_timer printCurrentLineTimer, userInputPollTimer;
+volatile bool commandReady = false;
 
 static void UserInput_CharAvailCallback(void *args)
 {
+	// TODO figure this out or delete it
 }
 
-static void UserInput_ParseInputLine(char *buf)
+static void UserInput_ParseInputLine(char *buf, uint16_t *argc, char **argv, uint16_t len)
 {
-	char *argv[USER_COMMAND_MAX_ARGS];
-	uint16_t argc = 0;
-	char *parseIdx = buf;
+	strncpy((char *)&usrCommandBuf, buf, len); // TODO inefficient but i just wanna move forward
+	char *parseIdx = usrCommandBuf;
 	char *arg = parseIdx;
+	*argc = 0;
 	
 	// see if this is a single command or if we have args
 	while(true)
@@ -32,8 +37,8 @@ static void UserInput_ParseInputLine(char *buf)
 		}
 
 		// We skipped the word. parseIdx now points to a space or a null
-		argv[argc] = arg;
-		argc++;
+		argv[*argc] = arg;
+		*argc++;
 		
 		// If this is the end of the line
 		if (*parseIdx == '\0')
@@ -56,17 +61,6 @@ static void UserInput_ParseInputLine(char *buf)
 			break;
 		}
 	}
-	// UserCommand_PrintCommand(argc, argv);
-
-	// We have the command and args parsed now. do a lookup to see
-	// which command is entered and call its function
-	// for (uint16_t i = 0; i < (sizeof(userCommands) / sizeof(userCommands[0])); i++)
-	// {
-	// 	if (strcmp(userCommands[i].command, argv[0]) == 0)
-	// 	{
-	// 		printf("COMMAND %s\n", argv[0]); // TODO
-	// 	}
-	// }
 }
 
 static bool UserInput_InputPollTimerCallback(struct repeating_timer_t *t)
@@ -83,10 +77,11 @@ static bool UserInput_InputPollTimerCallback(struct repeating_timer_t *t)
 	if (c == USER_INPUT_ENTER_CHAR)
 	{
 		usrInputBuf[usrInputIdx] = '\0';
-		printf("\nCMD:%s\n", usrInputBuf);
+		printf("\n");
 		// UserCommand_ProcessInputLine((char *) &usrInputBuf);
 		// UserCommand_RequestService();
-		UserInput_ParseInputLine((char *) &usrInputBuf);
+		UserInput_ParseInputLine((char *) &usrInputBuf, &usrCommandArgc, usrCommandArgs, usrInputIdx+1);
+		commandReady = true;
 		usrInputIdx = 0;
 	}
 	else if (c == USER_INPUT_BKSPACE_CHAR)
@@ -126,4 +121,11 @@ void UserInput_Init(void)
 
 void UserInput_Service(void)
 {
+	if (commandReady)
+	{
+		UserInput_StopPollTimer();
+		commandReady = false;
+		UserCommand_ProcessCommand(usrCommandArgc, usrCommandArgs);
+		UserInput_StartPollTimer();
+	}
 }

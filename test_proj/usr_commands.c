@@ -76,6 +76,20 @@ void UserCommand_ProcessInputLine(char *buf)
 	}
 }
 
+void UserCommand_ProcessCommand(uint16_t argc, char **argv)
+{
+	// We have the command and args parsed now. do a lookup to see
+	// which command is entered and call its function
+	for (uint16_t i = 0; i < (sizeof(userCommands) / sizeof(userCommands[0])); i++)
+	{
+		if (strcmp(userCommands[i].command, argv[0]) == 0)
+		{
+			// printf("COMMAND %s\n", argv[0]); // TODO
+			userCommands[i].fn(argc, argv);
+		}
+	}
+}
+
 void UserCommand_Init(void)
 {
 

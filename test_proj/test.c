@@ -7,13 +7,6 @@
 
 volatile bool ledon = false;
 
-void charsAvailCallback(void *args)
-{
-	// cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, (ledon ? 1 : 0));
-	ledon = !ledon;
-	int c = getchar_timeout_us(0);
-}
-
 int main() {
 	// setup_default_uart();
 	stdio_init_all();
@@ -28,7 +21,7 @@ int main() {
 	UserInput_Init();
 	while(1)
 	{
-		// UserInput_Service();
+		UserInput_Service();
 		// sleep_ms(1000);
 		// toggleLed();
 	}

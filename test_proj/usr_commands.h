@@ -7,9 +7,12 @@ typedef struct UserCommand_s
 	char *helptext;
 } UserCommand_t;
 
+extern UserCommand_t userCommands[];
+
 void UserCommand_Init(void);
 void UserCommand_Service(void);
 void UserCommand_RequestService(void);
 void UserCommand_ProcessInputLine(char *buf);
+void UserCommand_ProcessCommand(uint16_t argc, char **argv);
 void UserCommand_Reset(uint8_t argc, char **argv);
 void UserCommand_Test(uint8_t argc, char **argv);
