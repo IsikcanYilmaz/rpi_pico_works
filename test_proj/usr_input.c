@@ -20,7 +20,7 @@ static void UserInput_CharAvailCallback(void *args)
 	// TODO figure this out or delete it
 }
 
-static void UserInput_ParseInputLine(char *buf, uint16_t *argc, char **argv, uint16_t len)
+static void UserInput_ParseInputLine(char *buf, volatile uint16_t *argc, char **argv, uint16_t len)
 {
 	strncpy((char *)&usrCommandBuf, buf, len); // TODO inefficient but i just wanna move forward
 	char *parseIdx = usrCommandBuf;

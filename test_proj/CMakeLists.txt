@@ -12,14 +12,20 @@ pico_sdk_init()
 # rest of your project
 add_executable(test_proj
 	test.c test_functionality.c
-	usr_input.c usr_commands.c
+	usr_input.c usr_commands.c wifi.c
 	)
+
+target_include_directories(test_proj PRIVATE
+													 ${CMAKE_CURRENT_LIST_DIR}
+													)
 
 # Add pico_stdlib library which aggregates commonly used features
 target_link_libraries(test_proj 
 											pico_stdlib
-											pico_cyw43_arch_none
+											# pico_cyw43_arch_none
+											pico_cyw43_arch_lwip_poll
 											hardware_irq
+											hardware_pwm
 											)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

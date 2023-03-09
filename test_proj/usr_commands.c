@@ -4,12 +4,14 @@
 #include "usr_commands.h"
 #include "pico/bootrom.h"
 #include "test_functionality.h"
+#include "wifi.h"
 
 UserCommand_t userCommands[] = {
 	{"reset", UserCommand_Reset, "Reset the board into boot mode"},
 	{"test", UserCommand_Test, "test"},
 	{"led", UserCommand_LedSet, "Set Led"},
-	{"loopback", UserCommand_Loopback, "Loopback"}
+	{"loopback", UserCommand_Loopback, "Loopback"},
+	{"wifi", UserCommand_Wifi, "Wifi commands"}
 };
 
 static void UserCommand_PrintCommand(uint16_t argc, char **argv)
@@ -61,4 +63,23 @@ void UserCommand_Loopback(uint8_t argc, char **argv)
 		printf("%s ", argv[i]);
 	}
 	printf("\n");
+}
+
+void UserCommand_Wifi(uint8_t argc, char **argv)
+{
+	if (argc < 2)
+	{
+		printf("Wifi command bad args!\n");
+		return;
+	}
+	// args
+	if (strcmp(argv[1], "scan") == 0)
+	{
+		printf("Wifi scan\n");
+		Wifi_Scan();
+	}
+	else
+	{
+		printf("Bad arg!\n");
+	}
 }
