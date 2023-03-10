@@ -80,6 +80,10 @@ static bool UserInput_InputPollTimerCallback(struct repeating_timer_t *t)
 	}
 	if (c == USER_INPUT_ENTER_CHAR)
 	{
+		if (usrInputIdx == 0)
+		{
+			return true;
+		}
 		usrInputBuf[usrInputIdx] = '\0';
 		printf("\n");
 		// UserCommand_ProcessInputLine((char *) &usrInputBuf);
@@ -128,8 +132,8 @@ void UserInput_Service(void)
 	if (commandReady)
 	{
 		UserInput_StopPollTimer();
-		commandReady = false;
 		UserCommand_ProcessCommand(usrCommandArgc, usrCommandArgs);
+		commandReady = false;
 		UserInput_StartPollTimer();
 	}
 }

@@ -4,6 +4,7 @@
 #include "hardware/timer.h"
 #include "test_functionality.h"
 #include "usr_input.h"
+#include "wifi.h"
 
 int main() {
 	// setup_default_uart();
@@ -14,6 +15,7 @@ int main() {
 	}
 	UserInput_Init();
 	Wifi_Init();
+	toggleLed();
 	while(1)
 	{
 		UserInput_Service();

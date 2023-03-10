@@ -6,6 +6,8 @@
 #include "test_functionality.h"
 #include "wifi.h"
 
+#define ASSERT_ARGS(argcExpected) {if (argc < argcExpected) {printf("Bad args! argc %d\n", argc); return;}}
+
 UserCommand_t userCommands[] = {
 	{"reset", UserCommand_Reset, "Reset the board into boot mode"},
 	{"test", UserCommand_Test, "test"},
@@ -34,15 +36,21 @@ void UserCommand_ProcessCommand(uint16_t argc, char **argv)
 		{
 			// printf("COMMAND %s argc %d\n", argv[0], argc); // TODO
 			userCommands[i].fn(argc, argv);
+			return;
 		}
 	}
+	printf("Command not found\n");
 }
 
 // COMMANDS // 
 void UserCommand_Reset(uint8_t argc, char **argv)
 {
-	printf("Resetting!...\n");
-	reset_usb_boot(0,0);
+	if (argc == 2 && strcmp(argv[1], "boot") == 0)
+	{
+		softwareReset(true);
+		return;
+	}
+	softwareReset(false);
 }
 
 void UserCommand_Test(uint8_t argc, char **argv)
@@ -67,19 +75,22 @@ void UserCommand_Loopback(uint8_t argc, char **argv)
 
 void UserCommand_Wifi(uint8_t argc, char **argv)
 {
-	if (argc < 2)
-	{
-		printf("Wifi command bad args!\n");
-		return;
-	}
+	ASSERT_ARGS(2);
+
 	// args
 	if (strcmp(argv[1], "scan") == 0)
 	{
 		printf("Wifi scan\n");
 		Wifi_Scan();
 	}
+	else if (strcmp(argv[1], "connect") == 0)
+	{
+		ASSERT_ARGS(4);
+		Wifi_Connect(argv[2], argv[3]);
+	}
 	else
 	{
 		printf("Bad arg!\n");
+		UserCommand_PrintCommand(argc, argv);
 	}
 }

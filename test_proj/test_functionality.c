@@ -3,6 +3,8 @@
 #include "pico/cyw43_arch.h"
 // #include "hardware/timer.h"
 #include "hardware/pwm.h"
+#include "hardware/watchdog.h"
+#include "device/usbd.h"
 
 void flasher() 
 {
@@ -116,4 +118,20 @@ void toggleLed()
 void setLed(bool on)
 {
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, (on ? 1 : 0));
+}
+
+void softwareReset(bool boot)
+{
+	printf("Resetting ");
+	if (boot)
+	{
+		printf("into boot mode\n");
+		reset_usb_boot(0,0);
+	}
+	else
+	{
+		tud_disconnect();
+		watchdog_enable(1,0);
+		while(1);
+	}
 }

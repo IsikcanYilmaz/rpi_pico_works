@@ -11,3 +11,4 @@ void setRepeatingAlarm();
 void toggleLed();
 void setLed(bool on);
 uint64_t get_time(void);
+void softwareReset(bool boot);
