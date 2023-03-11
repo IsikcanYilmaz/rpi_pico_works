@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "usr_commands.h"
-#include "pico/bootrom.h"
 #include "test_functionality.h"
 #include "wifi.h"
 

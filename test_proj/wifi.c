@@ -11,6 +11,8 @@ static const char *authModeStrings[] = {
 	[2] = "WPA2",
 };
 
+WifiContext_t wifiContext;
+
 static void Wifi_PrintAuthMode(int auth)
 {
 	if (auth == 0)

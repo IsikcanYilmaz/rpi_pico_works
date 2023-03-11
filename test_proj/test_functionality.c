@@ -5,6 +5,7 @@
 #include "hardware/pwm.h"
 #include "hardware/watchdog.h"
 #include "device/usbd.h"
+#include "pico/bootrom.h"
 
 void flasher() 
 {
