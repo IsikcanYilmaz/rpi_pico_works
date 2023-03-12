@@ -5,6 +5,10 @@
 #include "test_functionality.h"
 #include "usr_input.h"
 #include "wifi.h"
+#include "oled_manager.h"
+
+// OLED v
+#include "DEV_Config.h"
 
 int main() {
 	// setup_default_uart();
@@ -15,6 +19,7 @@ int main() {
 	}
 	UserInput_Init();
 	Wifi_Init();
+	OledMan_Init();
 	toggleLed();
 	while(1)
 	{

@@ -4,15 +4,18 @@
 #include "usr_commands.h"
 #include "test_functionality.h"
 #include "wifi.h"
+#include "oled_manager.h"
 
 #define ASSERT_ARGS(argcExpected) {if (argc < argcExpected) {printf("Bad args! argc %d\n", argc); return;}}
+#define BAD_ARG() {printf("Bad arg!\n"); UserCommand_PrintCommand(argc, argv);}
 
 UserCommand_t userCommands[] = {
 	{"reset", UserCommand_Reset, "Reset the board into boot mode"},
 	{"test", UserCommand_Test, "test"},
 	{"led", UserCommand_LedSet, "Set Led"},
 	{"loopback", UserCommand_Loopback, "Loopback"},
-	{"wifi", UserCommand_Wifi, "Wifi commands"}
+	{"wifi", UserCommand_Wifi, "Wifi commands"},
+	{"oled", UserCommand_Oled, "Oled commands"}
 };
 
 static void UserCommand_PrintCommand(uint16_t argc, char **argv)
@@ -89,7 +92,36 @@ void UserCommand_Wifi(uint8_t argc, char **argv)
 	}
 	else
 	{
-		printf("Bad arg!\n");
-		UserCommand_PrintCommand(argc, argv);
+		BAD_ARG();
+	}
+}
+
+void UserCommand_Oled(uint8_t argc, char **argv)
+{
+	ASSERT_ARGS(3);
+
+	// args
+	if (strcmp(argv[1], "test") == 0)
+	{
+		uint8_t testType = atoi(argv[2]);
+		switch(testType)
+		{
+			case 0:
+				{
+					OledMan_Test0();
+				}
+			case 1:
+				{
+					OledMan_Test1();
+				}
+			default:
+				{
+					printf("Unknown\n");
+				}
+		}
+	}
+	else
+	{
+		BAD_ARG();
 	}
 }
