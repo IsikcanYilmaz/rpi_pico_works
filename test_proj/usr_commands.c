@@ -5,6 +5,7 @@
 #include "test_functionality.h"
 #include "wifi.h"
 #include "oled_manager.h"
+#include "GUI_Paint.h"
 
 #define ASSERT_ARGS(argcExpected) {if (argc < argcExpected) {printf("Bad args! argc %d\n", argc); return;}}
 #define BAD_ARG() {printf("Bad arg!\n"); UserCommand_PrintCommand(argc, argv);}
@@ -98,27 +99,44 @@ void UserCommand_Wifi(uint8_t argc, char **argv)
 
 void UserCommand_Oled(uint8_t argc, char **argv)
 {
-	ASSERT_ARGS(3);
+	ASSERT_ARGS(2);
 
 	// args
 	if (strcmp(argv[1], "test") == 0)
 	{
-		uint8_t testType = atoi(argv[2]);
+		uint8_t testType = (argc > 2 ? atoi(argv[2]) : 0);
 		switch(testType)
 		{
 			case 0:
-				{
-					OledMan_Test0();
-				}
+			{
+				OledMan_Test0();
+				break;
+			}
 			case 1:
-				{
-					OledMan_Test1();
-				}
+			{
+				OledMan_Test1();
+				break;
+			}
 			default:
-				{
-					printf("Unknown\n");
-				}
+			{
+				printf("Test unknown\n");
+				break;
+			}
 		}
+	}
+	else if (strcmp(argv[1], "clear") == 0)
+	{
+		OledMan_ClearBuf();
+		OledMan_DrawBuf();
+	}
+	else if (strcmp(argv[1], "pixel") == 0)
+	{
+		ASSERT_ARGS(4);
+		uint8_t x = atoi(argv[2]);
+		uint8_t y = atoi(argv[3]);
+		Paint_SetPixel(x, y, BLACK);
+		OledMan_DrawBuf();
+		printf("Draw pixel to x%d y%d\n", x, y);
 	}
 	else
 	{

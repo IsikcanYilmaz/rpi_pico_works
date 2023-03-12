@@ -1,7 +1,7 @@
 #include "oled_manager.h"
-#include "OLED_1in3_c.h"
 #include "GUI_Paint.h"
 #include <stdlib.h>
+#include <string.h>
 
 // High level management code for the Pico-OLED-1.3 module
 // has a 1.3 inch oled screen and two buttons on it.
@@ -14,13 +14,14 @@ static int OLED_1in3_C_test(void)
 {
     DEV_Delay_ms(100);
     
-    UBYTE *BlackImage;
-    UWORD Imagesize = ((OLED_1in3_C_WIDTH%8==0)? (OLED_1in3_C_WIDTH/8): (OLED_1in3_C_WIDTH/8+1)) * OLED_1in3_C_HEIGHT;
-    if((BlackImage = (UBYTE *)malloc(Imagesize)) == NULL) {
-        while(1){
-            printf("Failed to apply for black memory...\r\n");
-        }
-    }
+    // UBYTE *BlackImage;
+    // UWORD Imagesize = ((OLED_1in3_C_WIDTH%8==0)? (OLED_1in3_C_WIDTH/8): (OLED_1in3_C_WIDTH/8+1)) * OLED_1in3_C_HEIGHT;
+    // if((BlackImage = (UBYTE *)malloc(Imagesize)) == NULL) {
+        // while(1){
+            // printf("Failed to apply for black memory...\r\n");
+        // }
+    // }
+		UBYTE *BlackImage = oledManContext.pixelBuf;
     printf("Paint_NewImage\r\n");
     Paint_NewImage(BlackImage, OLED_1in3_C_WIDTH, OLED_1in3_C_HEIGHT, 0, WHITE);	
     
@@ -70,19 +71,21 @@ static int OLED_1in3_C_test(void)
     
     // Show image on page4
     // OLED_1in3_C_Display(gImage_1inch3_C_1);
-    // DEV_Delay_ms(5000);
+		// OLED_1in3_C_Display(Alarm88);
+		// Paint_DrawImage(Alarm88, 0, 0, 2, 4);
+    DEV_Delay_ms(5000);
     
     
-    Paint_NewImage(BlackImage, OLED_1in3_C_WIDTH, OLED_1in3_C_HEIGHT, 180, WHITE);	
-    Paint_Clear(BLACK);
-    int key0 = 15; 
-    int key1 = 17;
-    int key = 0;
-    DEV_GPIO_Mode(key0, 0);
-    DEV_GPIO_Mode(key1, 0);
-    
-    Paint_Clear(BLACK);
-    OLED_1in3_C_Display(BlackImage);
+    // Paint_NewImage(BlackImage, OLED_1in3_C_WIDTH, OLED_1in3_C_HEIGHT, 180, WHITE);	
+    // Paint_Clear(BLACK);
+    // int key0 = 15; 
+    // int key1 = 17;
+    // int key = 0;
+    // DEV_GPIO_Mode(key0, 0);
+    // DEV_GPIO_Mode(key1, 0);
+    // 
+    // Paint_Clear(BLACK);
+    // OLED_1in3_C_Display(BlackImage);
     
     
     // while(1){
@@ -107,7 +110,7 @@ static int OLED_1in3_C_test(void)
     //     
     // }
     
-    DEV_Module_Exit();
+    // DEV_Module_Exit();
     return 0;
 }
 
@@ -122,8 +125,20 @@ void OledMan_Init(void)
 	{
 		OLED_1in3_C_Init();
 		OLED_1in3_C_Clear();
+		OledMan_ClearBuf();
+		Paint_NewImage(oledManContext.pixelBuf, OLED_WIDTH, OLED_HEIGHT, 0, BLACK);
 		oledManContext.initialized = true;
 	}
+}
+
+void OledMan_DrawBuf(void)
+{
+	OLED_1in3_C_Display(oledManContext.pixelBuf);
+}
+
+void OledMan_ClearBuf(void)
+{
+	memset(oledManContext.pixelBuf, 0x00, PIXEL_BUF_LEN);
 }
 
 void OledMan_Test0(void)
@@ -133,5 +148,6 @@ void OledMan_Test0(void)
 
 void OledMan_Test1(void)
 {
-
+	Paint_SetPixel(0, 0, WHITE);
+	OLED_1in3_C_Display(oledManContext.pixelBuf);
 }

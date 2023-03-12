@@ -19,7 +19,7 @@ add_subdirectory(oled_lib/OLED)
 add_executable(test_proj
 	test.c test_functionality.c
 	usr_input.c usr_commands.c wifi.c
-	oled_manager.c 
+	oled_manager.c
 	)
 
 target_include_directories(test_proj PRIVATE
