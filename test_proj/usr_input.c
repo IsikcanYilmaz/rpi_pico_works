@@ -1,5 +1,4 @@
 #include "usr_input.h"
-#include "hardware/timer.h"
 #include "pico/stdlib.h"
 #include "hardware/timer.h"
 #include <stdio.h>

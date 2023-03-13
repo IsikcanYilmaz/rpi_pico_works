@@ -8,7 +8,7 @@
 #include "GUI_Paint.h"
 #include "game_of_life.h"
 
-#define ASSERT_ARGS(argcExpected) {if (argc < argcExpected) {printf("Bad args! argc %d\n", argc); return;}}
+#define ASSERT_ARGS(argcExpected) {if (argc < argcExpected) {printf("Bad args! argc %d expected %d\n", argc, argcExpected); return;}}
 #define BAD_ARG() {printf("Bad arg!\n"); UserCommand_PrintCommand(argc, argv);}
 
 UserCommand_t userCommands[] = {
@@ -103,40 +103,56 @@ void UserCommand_Oled(uint8_t argc, char **argv)
 	ASSERT_ARGS(2);
 
 	// args
-	if (strcmp(argv[1], "test") == 0)
+	if (strcmp(argv[1], "line") == 0)
 	{
-		uint8_t testType = (argc > 2 ? atoi(argv[2]) : 0);
-		switch(testType)
-		{
-			case 0:
-			{
-				OledMan_Test0();
-				break;
-			}
-			case 1:
-			{
-				OledMan_Test1();
-				break;
-			}
-			default:
-			{
-				printf("Test unknown\n");
-				break;
-			}
-		}
+		ASSERT_ARGS(6);
+		uint16_t x1 = atoi(argv[2]);
+		uint16_t y1 = atoi(argv[3]);
+		uint16_t x2 = atoi(argv[4]);
+		uint16_t y2 = atoi(argv[5]);
+		OledMan_DrawLine(x1, x2, y1, y2);
+		printf("Draw line from %d %d to %d %d\n", x1, y1, x2, y2);
+	}
+	else if (strcmp(argv[1], "circle") == 0)
+	{
+		ASSERT_ARGS(6);
+		uint16_t xCenter = atoi(argv[2]);
+		uint16_t yCenter = atoi(argv[3]);
+		uint16_t radius = atoi(argv[4]);
+		bool fill = (atoi(argv[5]) > 0);
+		OledMan_DrawCircle(xCenter, yCenter, radius, fill);
+		printf("Draw circle at %d %d with r %d f %d\n", xCenter, yCenter, radius, fill);
+	}
+	else if (strcmp(argv[1], "string") == 0)
+	{
+		ASSERT_ARGS(5);
+		uint16_t x = atoi(argv[2]);
+		uint16_t y = atoi(argv[3]);
+		char *str = argv[4];
+		OledMan_DrawString(x, y, str);
+		printf("Draw string \"%s\" at %d %d\n", str, x, y);
+	}
+	else if (strcmp(argv[1], "rect") == 0)
+	{
+		ASSERT_ARGS(7); // oled rect 0 0 5 5 1
+		uint16_t x1 = atoi(argv[2]);
+		uint16_t y1 = atoi(argv[3]);
+		uint16_t x2 = atoi(argv[4]);
+		uint16_t y2 = atoi(argv[5]);
+		bool fill = (atoi(argv[6]) > 0);
+		OledMan_DrawRectangle(x1, y1, x2, y2, fill);
+		printf("Draw rect x1%d y1%d x2%d y2%d f%d\n", x1, y1, x2, y2, fill);
 	}
 	else if (strcmp(argv[1], "clear") == 0)
 	{
 		OledMan_ClearBuf();
-		OledMan_DrawBuf();
 	}
 	else if (strcmp(argv[1], "pixel") == 0)
 	{
 		ASSERT_ARGS(4);
-		uint8_t x = atoi(argv[2]);
-		uint8_t y = atoi(argv[3]);
-		Paint_SetPixel(x, y, BLACK);
-		OledMan_DrawBuf();
+		uint16_t x = atoi(argv[2]);
+		uint16_t y = atoi(argv[3]);
+		OledMan_SetPixel(x, y, true);
 		printf("Draw pixel to x%d y%d\n", x, y);
 	}
 	else
