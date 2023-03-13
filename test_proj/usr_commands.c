@@ -6,6 +6,7 @@
 #include "wifi.h"
 #include "oled_manager.h"
 #include "GUI_Paint.h"
+#include "game_of_life.h"
 
 #define ASSERT_ARGS(argcExpected) {if (argc < argcExpected) {printf("Bad args! argc %d\n", argc); return;}}
 #define BAD_ARG() {printf("Bad arg!\n"); UserCommand_PrintCommand(argc, argv);}

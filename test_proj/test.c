@@ -6,6 +6,7 @@
 #include "usr_input.h"
 #include "wifi.h"
 #include "oled_manager.h"
+#include "game_of_life.h"
 
 // OLED v
 #include "DEV_Config.h"
@@ -20,6 +21,7 @@ int main() {
 	UserInput_Init();
 	Wifi_Init();
 	OledMan_Init();
+	Gol_Init();
 	toggleLed();
 	while(1)
 	{
