@@ -7,6 +7,7 @@
 #include "wifi.h"
 #include "oled_manager.h"
 #include "game_of_life.h"
+#include "screen_saver.h"
 
 // OLED v
 #include "DEV_Config.h"
@@ -21,7 +22,12 @@ int main() {
 	UserInput_Init();
 	Wifi_Init();
 	OledMan_Init();
+
 	Gol_Init();
+	// ScreenSaver_Init("TEST");
+
+	// ScreenSaver_Start();
+
 	toggleLed();
 	while(1)
 	{

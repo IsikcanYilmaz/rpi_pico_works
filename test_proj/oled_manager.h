@@ -52,6 +52,7 @@
 typedef struct OledManContext_s
 {
 	bool initialized;
+	bool blocked;
 	sFONT *font;
 	struct repeating_timer oledManUpdateTimer;
 	volatile bool pixelBufUpdated; 
@@ -68,5 +69,6 @@ void OledMan_DrawChar(uint16_t x, uint16_t y, char c);
 void OledMan_DrawCircle(uint16_t xCenter, uint16_t yCenter, uint16_t radius, bool fill);
 void OledMan_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 void OledMan_DrawString(uint16_t x, uint16_t y, char *str);
-void OledMan_DrawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, bool fill);
+void OledMan_DrawRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, bool fill);
+void OledMan_DrawRectangleAbsolute(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, bool fill);
 void OledMan_SetPixel(uint16_t x, uint16_t y, uint8_t set);

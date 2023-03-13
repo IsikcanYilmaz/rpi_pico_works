@@ -11,6 +11,7 @@ OledManContext_t oledManContext = {
 	.initialized = false,
 	.pixelBufUpdated = false,
 	.font = DEFAULT_FONT,
+	.blocked = false,
 };
 
 static int OLED_1in3_C_test(void)
@@ -124,6 +125,7 @@ static bool OledMan_UpdateTimerCallback(struct repeating_timer_t *t)
 		OledMan_DrawBuf();
 		oledManContext.pixelBufUpdated = false;
 	}
+	return true;
 }
 
 void OledMan_StartPollTimer(void)
@@ -195,7 +197,14 @@ void OledMan_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 	oledManContext.pixelBufUpdated = true;
 }
 
-void OledMan_DrawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, bool fill)
+void OledMan_DrawRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, bool fill)
+{
+	uint16_t x2 = x + w;
+	uint16_t y2 = y + h;
+	OledMan_DrawRectangleAbsolute(x, y, x2, y2, fill);
+}
+
+void OledMan_DrawRectangleAbsolute(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, bool fill)
 {
 	Paint_DrawRectangle(x1, y1, x2, y2, WHITE, DOT_PIXEL_1X1, (fill ? DRAW_FILL_FULL : DRAW_FILL_EMPTY));
 	oledManContext.pixelBufUpdated = true;

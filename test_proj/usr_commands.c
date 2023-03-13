@@ -7,6 +7,7 @@
 #include "oled_manager.h"
 #include "GUI_Paint.h"
 #include "game_of_life.h"
+#include "screen_saver.h"
 
 #define ASSERT_ARGS(argcExpected) {if (argc < argcExpected) {printf("Bad args! argc %d expected %d\n", argc, argcExpected); return;}}
 #define BAD_ARG() {printf("Bad arg!\n"); UserCommand_PrintCommand(argc, argv);}
@@ -17,7 +18,8 @@ UserCommand_t userCommands[] = {
 	{"led", UserCommand_LedSet, "Set Led"},
 	{"loopback", UserCommand_Loopback, "Loopback"},
 	{"wifi", UserCommand_Wifi, "Wifi commands"},
-	{"oled", UserCommand_Oled, "Oled commands"}
+	{"oled", UserCommand_Oled, "Oled commands"},
+	{"misc", UserCommand_Misc, "Misc programs"}
 };
 
 static void UserCommand_PrintCommand(uint16_t argc, char **argv)
@@ -135,13 +137,13 @@ void UserCommand_Oled(uint8_t argc, char **argv)
 	else if (strcmp(argv[1], "rect") == 0)
 	{
 		ASSERT_ARGS(7); // oled rect 0 0 5 5 1
-		uint16_t x1 = atoi(argv[2]);
-		uint16_t y1 = atoi(argv[3]);
-		uint16_t x2 = atoi(argv[4]);
-		uint16_t y2 = atoi(argv[5]);
+		uint16_t x = atoi(argv[2]);
+		uint16_t y = atoi(argv[3]);
+		uint16_t w = atoi(argv[4]);
+		uint16_t h = atoi(argv[5]);
 		bool fill = (atoi(argv[6]) > 0);
-		OledMan_DrawRectangle(x1, y1, x2, y2, fill);
-		printf("Draw rect x1%d y1%d x2%d y2%d f%d\n", x1, y1, x2, y2, fill);
+		OledMan_DrawRectangle(x, y, w, h, fill);
+		printf("Draw rect x%d y%d w%d h%d f%d\n", x, y, w, h, fill);
 	}
 	else if (strcmp(argv[1], "clear") == 0)
 	{
@@ -158,5 +160,36 @@ void UserCommand_Oled(uint8_t argc, char **argv)
 	else
 	{
 		BAD_ARG();
+	}
+}
+
+void UserCommand_Misc(uint8_t argc, char **argv)
+{
+	ASSERT_ARGS(2);
+	
+	// args
+	if (strcmp(argv[1], "screensaver") == 0)
+	{
+		ASSERT_ARGS(3);
+		if (strcmp(argv[2], "start") == 0)
+		{
+			if (ScreenSaver_IsRunning())
+			{
+				printf("Screensaver already running! Stop it then restart\n");
+			}
+			else
+			{
+				ScreenSaver_Init((argc > 3) ? argv[3] : SCREEN_SAVER_DEFAULT_STRING);
+				ScreenSaver_Start();
+			}
+		}
+		else if (strcmp(argv[2], "stop") == 0)
+		{
+			ScreenSaver_Stop();
+		}
+		else
+		{
+			BAD_ARG();
+		}
 	}
 }
