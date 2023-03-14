@@ -14,7 +14,8 @@ add_subdirectory(oled_lib/Config)
 add_subdirectory(oled_lib/Fonts)    
 add_subdirectory(oled_lib/GUI)    
 add_subdirectory(oled_lib/OLED)
-add_subdirectorY(misc/)
+add_subdirectory(misc/)
+add_subdirectory(util/)
 
 # rest of your project
 add_executable(test_proj
@@ -30,6 +31,7 @@ target_include_directories(test_proj PRIVATE
 													 ./oled_lib/OLED
 													 ./oled_lib/Fonts
 													 ./misc/
+													 ./util/
 													)
 
 # Add pico_stdlib library which aggregates commonly used features
@@ -42,6 +44,7 @@ target_link_libraries(test_proj
 											hardware_spi
 											# misc
 											misc
+											util
 											# Below for the oled driver
 											OLED
 											GUI
