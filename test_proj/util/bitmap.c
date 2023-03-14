@@ -16,17 +16,17 @@
 *  										maxX, maxY
 */
 
-static uint16_t Bitmap_GetPixIdx(Bitmap_t *b, uint16_t x, uint16_t y)
+static inline uint16_t Bitmap_GetPixIdx(Bitmap_t *b, uint16_t x, uint16_t y)
 {
 	return (b->width * y) + x;
 }
 
-static uint16_t Bitmap_GetByteIdx(Bitmap_t *b, uint16_t x, uint16_t y)
+static inline uint16_t Bitmap_GetByteIdx(Bitmap_t *b, uint16_t x, uint16_t y)
 {
 	return Bitmap_GetPixIdx(b, x, y) / 8;
 }
 
-static uint16_t Bitmap_GetBitIdx(Bitmap_t *b, uint16_t x, uint16_t y)
+static inline uint16_t Bitmap_GetBitIdx(Bitmap_t *b, uint16_t x, uint16_t y)
 {
 	return Bitmap_GetPixIdx(b, x, y) % 8;
 }
