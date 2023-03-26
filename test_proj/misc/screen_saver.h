@@ -54,7 +54,8 @@ typedef struct ScreenSaverContext_t
 	Direction_e direction;
 } ScreenSaverContext_s;
 
-void ScreenSaver_Init(char *str);
+bool ScreenSaver_Init(void *arg);
+void ScreenSaver_Deinit(void);
 void ScreenSaver_Start(void);
 void ScreenSaver_Stop(void);
 void ScreenSaver_Update(void);

@@ -1,0 +1,166 @@
+#include "misc_manager.h"
+#include "pico/stdlib.h"
+#include "hardware/timer.h"
+#include "screen_saver.h"
+#include "game_of_life.h"
+#include "usr_commands.h"
+#include <stdio.h>
+#include <string.h>
+
+#define MISC_SCREEN_SAVER_ENABLED 1
+#define MISC_GAME_OF_LIFE_ENABLED 0
+
+Misc_t miscPrograms[MISC_MAX-1] = 
+{
+	#if MISC_SCREEN_SAVER_ENABLED
+	[MISC_SCREEN_SAVER] = {
+		.name = "screen_saver",
+		.init = ScreenSaver_Init,
+		.deinit = ScreenSaver_Deinit,
+		.start = ScreenSaver_Start,
+		.stop = ScreenSaver_Stop,
+		.update = ScreenSaver_Update,
+		.draw = ScreenSaver_Draw,
+		.isRunning = false,
+		.updatePeriodMs = SCREENSAVER_UPDATE_PERIOD_MS,
+		},
+	#endif
+	#if MISC_GAME_OF_LIFE_ENABLED
+	// [MISC_GAME_OF_LIFE] = {},
+	#endif
+};
+
+MiscIdx_e currentProgramIdx = MISC_MAX;
+Misc_t *currentProgram = NULL;
+struct repeating_timer miscUpdateTimer;
+
+static bool Misc_TimerCallback(struct repeating_timer *t)
+{
+	if (currentProgramIdx >= MISC_MAX)
+	{
+		return false;
+	}
+	miscPrograms[currentProgramIdx].update();
+	miscPrograms[currentProgramIdx].draw();
+	return true;
+}
+
+void Misc_ManagerInit(void)
+{
+	// TODO?
+}
+
+void Misc_TimerStart(void)
+{
+	add_repeating_timer_ms(miscPrograms[currentProgramIdx].updatePeriodMs, Misc_TimerCallback, NULL, &miscUpdateTimer);
+}
+
+void Misc_TimerStop(void)
+{
+	cancel_repeating_timer(&miscUpdateTimer);
+}
+
+void Misc_StopProgram(void)
+{
+	if (currentProgramIdx < MISC_MAX)
+	{
+		printf("Stopping program %d:%s\n", currentProgramIdx, miscPrograms[currentProgramIdx]);
+		Misc_TimerStop();
+		miscPrograms[currentProgramIdx].stop();
+		miscPrograms[currentProgramIdx].deinit();
+	}
+	else 
+	{
+		printf("No running misc program\n");
+	}
+}
+
+void Misc_StartProgram(MiscIdx_e idx, void *arg)
+{
+	// First stop the ongoing program
+	if (idx >= MISC_MAX)
+	{
+		printf("Bad idx for Misc_StartProgram %d\n", idx);
+		return;
+	}
+	Misc_StopProgram();
+	currentProgramIdx = MISC_MAX;
+
+	// Pass whatever's been passed to the arg to our program
+	bool ret = miscPrograms[idx].init(arg);
+	if (ret)
+	{
+		printf("Starting program %d:%s\n", idx, miscPrograms[idx]);
+		miscPrograms[idx].start();
+		currentProgramIdx = idx;
+		Misc_TimerStart();
+	}
+	else
+	{
+		printf("Program %d:%s failed to start\n", idx, miscPrograms[idx].name);
+		return;
+	}
+}
+
+MiscIdx_e Misc_StrToMiscIdx(char *str)
+{
+	MiscIdx_e ret = MISC_MAX;
+	for (uint8_t i = 0; i < sizeof(miscPrograms)/sizeof(miscPrograms[0]); i++)
+	{
+		if (strcmp(str, miscPrograms[i].name) == 0)
+		{
+			ret = i;
+			break;
+		}
+	}
+	return ret;
+}
+
+static void Misc_ProcessSubprogramInput(MiscIdx_e idx, uint8_t argc, char **argv)
+{
+	printf("Misc command to %s\n", miscPrograms[idx].name);
+	UserCommand_PrintCommand(argc, argv);
+	ASSERT_ARGS(1);
+	if (strcmp(argv[0], "start") == 0)
+	{
+		Misc_StartProgram(idx, (argc > 1) ? argv[1] : NULL);
+	}
+	else if (strcmp(argv[0], "stop") == 0)
+	{
+		Misc_StopProgram();
+	}
+	else 
+	{
+		
+	}
+}
+
+void Misc_TakeTextInput(uint8_t argc, char **argv)
+{
+	ASSERT_ARGS(1);
+	UserCommand_PrintCommand(argc, argv);
+	if (strcmp(argv[0], "list") == 0)
+	{
+		Misc_PrintPrograms();
+	}
+	else if (strcmp(argv[0], "stop") == 0)
+	{
+		Misc_StopProgram();
+	}
+	else
+	{
+		MiscIdx_e idx = Misc_StrToMiscIdx(argv[0]);
+		if (idx < MISC_MAX)
+		{
+			Misc_ProcessSubprogramInput(idx, argc-1, &argv[1]);
+		}
+	}
+}
+
+void Misc_PrintPrograms(void)
+{
+	for (uint16_t i = 0; i < sizeof(miscPrograms)/sizeof(miscPrograms[0]); i++)
+	{
+		printf("%d: %s %c\n", i, miscPrograms[i].name, (i == currentProgramIdx) ? " * " : " ");
+	}
+}

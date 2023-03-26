@@ -23,13 +23,6 @@ const char *sideStrings[] = {
 	[LEFT] = "LEFT"
 };
 
-static bool ScreenSaver_TimerCallback(struct repeating_timer *t)
-{
-	ScreenSaver_Update();
-	ScreenSaver_Draw();
-	return true;
-}
-
 static Side_e ScreenSaver_CollisionDetect(void)
 {
 	Side_e retSide = SIDE_INVALID;
@@ -54,13 +47,22 @@ static Side_e ScreenSaver_CollisionDetect(void)
 	return retSide;
 }
 
-void ScreenSaver_Init(char *str)
+bool ScreenSaver_Init(void *arg)
 {
+	char *str;
+	if (arg == NULL)
+	{
+		str = SCREEN_SAVER_DEFAULT_STRING;
+	}
+	else
+	{
+		str = (char *) arg;
+	}
 	uint8_t stringLen = strlen(str);
 	if (stringLen > SS_STR_MAX)
 	{
 		printf("Screensaver string length too long! %d > %d\n", stringLen, SS_STR_MAX);
-		return;
+		return false;
 	}
 	memset(screenSaverString, 0x00, sizeof(screenSaverString));
 	strcpy(screenSaverString, str);
@@ -81,24 +83,29 @@ void ScreenSaver_Init(char *str)
 	};
 }
 
+void ScreenSaver_Deinit(void)
+{
+	// TODO
+}
+
 void ScreenSaver_Start(void)
 {
-	OledMan_ClearBuf();
 	if (!screenSaverContext.initialized)
 	{
 		printf("Need to init screensaver first!\n");
 		return;
 	}
-	add_repeating_timer_ms(SCREENSAVER_UPDATE_PERIOD_MS,ScreenSaver_TimerCallback, NULL, &screenSaverUpdateTimer);
+	// OledMan_ClearBuf();
+	// add_repeating_timer_ms(SCREENSAVER_UPDATE_PERIOD_MS,ScreenSaver_TimerCallback, NULL, &screenSaverUpdateTimer);
 	screenSaverContext.running = true;
 }
 
 void ScreenSaver_Stop(void)
 {
-	cancel_repeating_timer(&screenSaverUpdateTimer);
+	// cancel_repeating_timer(&screenSaverUpdateTimer);
 	screenSaverContext.running = false;
 	printf("Screen saver stopped!\n");
-	OledMan_ClearBuf();
+	// OledMan_ClearBuf();
 }
 
 void ScreenSaver_Update(void)

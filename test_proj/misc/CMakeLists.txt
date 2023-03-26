@@ -9,6 +9,11 @@ target_include_directories(misc PRIVATE
 													../oled_lib/Fonts
 										)
 target_link_libraries(misc PRIVATE
+											pico_stdlib
+											pico_cyw43_arch_lwip_poll
+											hardware_irq
+											hardware_pwm
+											hardware_spi
 											OLED
 											GUI
 											Fonts

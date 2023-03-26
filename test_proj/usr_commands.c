@@ -2,15 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 #include "usr_commands.h"
+#include "misc_manager.h"
 #include "test_functionality.h"
 #include "wifi.h"
 #include "oled_manager.h"
 #include "GUI_Paint.h"
 #include "game_of_life.h"
 #include "screen_saver.h"
-
-#define ASSERT_ARGS(argcExpected) {if (argc < argcExpected) {printf("Bad args! argc %d expected %d\n", argc, argcExpected); return;}}
-#define BAD_ARG() {printf("Bad arg!\n"); UserCommand_PrintCommand(argc, argv);}
 
 UserCommand_t userCommands[] = {
 	{"reset", UserCommand_Reset, "Reset the board into boot mode"},
@@ -22,7 +20,7 @@ UserCommand_t userCommands[] = {
 	{"misc", UserCommand_Misc, "Misc programs"}
 };
 
-static void UserCommand_PrintCommand(uint16_t argc, char **argv)
+void UserCommand_PrintCommand(uint16_t argc, char **argv)
 {
 	printf("COMMAND: ");
 	for (uint16_t i = 0; i < argc; i++)
@@ -166,30 +164,5 @@ void UserCommand_Oled(uint8_t argc, char **argv)
 void UserCommand_Misc(uint8_t argc, char **argv)
 {
 	ASSERT_ARGS(2);
-	
-	// args
-	if (strcmp(argv[1], "screensaver") == 0)
-	{
-		ASSERT_ARGS(3);
-		if (strcmp(argv[2], "start") == 0)
-		{
-			if (ScreenSaver_IsRunning())
-			{
-				printf("Screensaver already running! Stop it then restart\n");
-			}
-			else
-			{
-				ScreenSaver_Init((argc > 3) ? argv[3] : SCREEN_SAVER_DEFAULT_STRING);
-				ScreenSaver_Start();
-			}
-		}
-		else if (strcmp(argv[2], "stop") == 0)
-		{
-			ScreenSaver_Stop();
-		}
-		else
-		{
-			BAD_ARG();
-		}
-	}
+	Misc_TakeTextInput(argc-1, &argv[1]); // pass only the arguments to "misc"
 }
