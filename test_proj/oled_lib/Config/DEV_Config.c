@@ -156,7 +156,7 @@ Info:
 ******************************************************************************/
 UBYTE DEV_Module_Init(void)
 {
-    stdio_init_all();
+    // stdio_init_all();
     
     //GPIO PIN
     EPD_RST_PIN     = 12;

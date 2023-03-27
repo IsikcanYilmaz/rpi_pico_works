@@ -1,6 +1,7 @@
 #include "game_of_life.h"
 #include "oled_manager.h"
 #include "test_functionality.h"
+#include <stdlib.h>
 
 uint8_t currentBoardBuf[GOL_BOARD_BUF_LEN];
 uint8_t nextBoardBuf[GOL_BOARD_BUF_LEN];
@@ -15,11 +16,15 @@ bool Gol_Init(void *arg)
 	Bitmap_Clear(&currentBoard);
 	Bitmap_Clear(&nextBoard);
 
-	Gol_SetCell(0, 3, true);
-	Gol_SetCell(1, 3, true);
-	Gol_SetCell(2, 3, true);
-	Gol_SetCell(2, 2, true);
-	Gol_SetCell(1, 1, true);
+	// test
+	// Gol_SetCell(0, 3, true);
+	// Gol_SetCell(1, 3, true);
+	// Gol_SetCell(2, 3, true);
+	// Gol_SetCell(2, 2, true);
+	// Gol_SetCell(1, 1, true);
+	//
+	// Gol_SetBlock(10, 10, 20, 30);
+	// Gol_SetBlock(80, 100, 90, 110);
 	return true;
 }
 
@@ -36,35 +41,30 @@ void Gol_Update(void)
 		{
 			uint8_t numAliveNeighbors = Gol_GetAliveNeighbors(x, y);
 			uint8_t currentState = Bitmap_GetPixel(golContext.currentBoard, x, y);
-			uint8_t rule = 0;
 			bool cellLives = false;
 
 			// is alive and one or no neighbors
 			if (currentState && numAliveNeighbors < 2)
 			{
 				cellLives = false;
-				rule = 1;
 			}
 
 			// is alive and 2 or 3 alive neighbors
 			else if (currentState && (numAliveNeighbors == 2 || numAliveNeighbors == 3))
 			{
 				cellLives = true;
-				rule = 2;
 			}
 
 			// is alive and more than 4 alive neighbors
 			else if (currentState && numAliveNeighbors >= 4)
 			{
 				cellLives = false;
-				rule = 3;
 			}
 
 			// is dead and 3 alive neighbors
 			else if (currentState == 0 && numAliveNeighbors == 3)
 			{
 				cellLives = true;
-				rule = 4;
 			}
 			Bitmap_SetPixel(golContext.nextBoard, x, y, cellLives ? 1 : 0);
 		}
@@ -72,6 +72,8 @@ void Gol_Update(void)
 	Bitmap_t *tmp = golContext.currentBoard;
 	golContext.currentBoard = golContext.nextBoard;
 	golContext.nextBoard = tmp;
+
+	Gol_SpawnBlockByChance();
 }
 
 void Gol_Draw(void)
@@ -134,3 +136,41 @@ void Gol_SetCell(uint8_t x, uint8_t y, bool val)
 {
 	Bitmap_SetPixel(golContext.currentBoard, x, y, val);
 } 
+
+void Gol_SetBlockAbsolute(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
+{
+	if (x1 > GOL_WIDTH || x2 > GOL_WIDTH || y1 > GOL_HEIGHT || y2 > GOL_HEIGHT)
+	{
+		printf("Bad block args! %d %d, %d %d\n", x1, y1, x2, y2);
+		return;
+	}
+	for (uint8_t x = x1; x < x2; x++)
+	{
+		for (uint8_t y = y1; y < y2; y++)
+		{
+			Gol_SetCell(x, y, 1);
+		}
+	}
+}
+
+void Gol_SetBlock(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+{
+	Gol_SetBlockAbsolute(x, y, x+w, y+h);
+}
+
+void Gol_SpawnBlockByChance(void)
+{
+	if (!GOL_SPAWN_BLOCKS)
+	{
+		return;
+	}
+	uint8_t roll = rand() % 100;
+	if (roll <= GOL_SPAWN_BLOCK_CHANCE)
+	{
+		uint8_t x = rand() % GOL_WIDTH;
+		uint8_t y = rand() % GOL_HEIGHT;
+		uint8_t w = rand() % (GOL_WIDTH-x);
+		uint8_t h = rand() % (GOL_HEIGHT-y);
+		Gol_SetBlock(x, y, w, h);
+	}
+}

@@ -212,7 +212,14 @@ void OledMan_DrawRectangleAbsolute(uint16_t x1, uint16_t y1, uint16_t x2, uint16
 
 void OledMan_SetPixel(uint16_t x, uint16_t y, uint8_t set)
 {
-	Paint_SetPixel(x, y, (set > 0 ? WHITE : BLACK));
+	if (set)
+	{
+		Paint_SetPixel(x, y, 1);
+	}
+	else
+	{
+		Paint_UnsetPixel(x, y);
+	}
 	oledManContext.pixelBufUpdated = true;
 }
 

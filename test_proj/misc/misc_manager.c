@@ -79,6 +79,7 @@ void Misc_StopProgram(void)
 		miscPrograms[currentProgramIdx].isRunning = false;
 		miscPrograms[currentProgramIdx].stop();
 		miscPrograms[currentProgramIdx].deinit();
+		currentProgramIdx = MISC_MAX;
 	}
 	else 
 	{
@@ -173,6 +174,6 @@ void Misc_PrintPrograms(void)
 {
 	for (uint16_t i = 0; i < sizeof(miscPrograms)/sizeof(miscPrograms[0]); i++)
 	{
-		printf("%d: %s %c\n", i, miscPrograms[i].name, (i == currentProgramIdx) ? "*" : " ");
+		printf("%d: %s %c\n", i, miscPrograms[i].name, (i == currentProgramIdx) ? '*' : ' ');
 	}
 }

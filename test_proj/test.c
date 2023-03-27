@@ -8,6 +8,7 @@
 #include "oled_manager.h"
 #include "game_of_life.h"
 #include "screen_saver.h"
+#include "button.h"
 
 // OLED v
 #include "DEV_Config.h"
@@ -22,6 +23,7 @@ int main() {
 	UserInput_Init();
 	Wifi_Init();
 	OledMan_Init();
+	Button_Init();
 	toggleLed();
 	while(1)
 	{
