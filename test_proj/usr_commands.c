@@ -152,8 +152,10 @@ void UserCommand_Oled(uint8_t argc, char **argv)
 		ASSERT_ARGS(4);
 		uint16_t x = atoi(argv[2]);
 		uint16_t y = atoi(argv[3]);
-		OledMan_SetPixel(x, y, true);
-		printf("Draw pixel to x%d y%d\n", x, y);
+		uint8_t val = 1;
+		if (argc > 4) val = atoi(argv[4]);
+		OledMan_SetPixel(x, y, val);
+		printf("Draw pixel to x%d y%d v%d\n", x, y, val);
 	}
 	else
 	{

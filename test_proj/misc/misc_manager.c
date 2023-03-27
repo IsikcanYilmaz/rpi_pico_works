@@ -8,9 +8,9 @@
 #include <string.h>
 
 #define MISC_SCREEN_SAVER_ENABLED 1
-#define MISC_GAME_OF_LIFE_ENABLED 0
+#define MISC_GAME_OF_LIFE_ENABLED 1
 
-Misc_t miscPrograms[MISC_MAX-1] = 
+Misc_t miscPrograms[] = 
 {
 	#if MISC_SCREEN_SAVER_ENABLED
 	[MISC_SCREEN_SAVER] = {
@@ -26,7 +26,17 @@ Misc_t miscPrograms[MISC_MAX-1] =
 		},
 	#endif
 	#if MISC_GAME_OF_LIFE_ENABLED
-	// [MISC_GAME_OF_LIFE] = {},
+	[MISC_GAME_OF_LIFE] = {
+		.name = "gol",
+		.init = Gol_Init,
+		.deinit = Gol_Deinit,
+		.start = Gol_Start,
+		.stop = Gol_Stop,
+		.update = Gol_Update,
+		.draw = Gol_Draw,
+		.isRunning = false,
+		.updatePeriodMs = GOL_UPDATE_PERIOD_MS,
+		},
 	#endif
 };
 
@@ -66,6 +76,7 @@ void Misc_StopProgram(void)
 	{
 		printf("Stopping program %d:%s\n", currentProgramIdx, miscPrograms[currentProgramIdx]);
 		Misc_TimerStop();
+		miscPrograms[currentProgramIdx].isRunning = false;
 		miscPrograms[currentProgramIdx].stop();
 		miscPrograms[currentProgramIdx].deinit();
 	}
@@ -91,6 +102,7 @@ void Misc_StartProgram(MiscIdx_e idx, void *arg)
 	if (ret)
 	{
 		printf("Starting program %d:%s\n", idx, miscPrograms[idx]);
+		miscPrograms[idx].isRunning = true;
 		miscPrograms[idx].start();
 		currentProgramIdx = idx;
 		Misc_TimerStart();
@@ -161,6 +173,6 @@ void Misc_PrintPrograms(void)
 {
 	for (uint16_t i = 0; i < sizeof(miscPrograms)/sizeof(miscPrograms[0]); i++)
 	{
-		printf("%d: %s %c\n", i, miscPrograms[i].name, (i == currentProgramIdx) ? " * " : " ");
+		printf("%d: %s %c\n", i, miscPrograms[i].name, (i == currentProgramIdx) ? "*" : " ");
 	}
 }

@@ -187,7 +187,23 @@ void Paint_SetPixel(UWORD Xpoint, UWORD Ypoint, UWORD Color)
         Paint.Image[Addr] = 0xff & (Color>>8);
         Paint.Image[Addr+1] = 0xff & Color;
     }
+}
 
+// TODO test v
+void Paint_UnsetPixel(UWORD Xpoint, UWORD Ypoint)
+{
+	UDOUBLE Addr;
+	switch(Paint.Scale)
+	{
+		case 2:
+		{
+			Addr = Xpoint / 8 + Ypoint * Paint.WidthByte;
+			break;
+		}
+		default:
+			printf("Scales higher than 2 are not implemented! %d\n", Paint.Scale);
+	}
+	Paint.Image[Addr] = 0x00;
 }
 
 /******************************************************************************

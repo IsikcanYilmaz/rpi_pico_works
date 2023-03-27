@@ -22,12 +22,6 @@ int main() {
 	UserInput_Init();
 	Wifi_Init();
 	OledMan_Init();
-
-	Gol_Init();
-	// ScreenSaver_Init("TEST");
-
-	// ScreenSaver_Start();
-
 	toggleLed();
 	while(1)
 	{
