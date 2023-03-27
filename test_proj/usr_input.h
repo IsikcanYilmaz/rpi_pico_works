@@ -6,6 +6,7 @@
 #define USER_INPUT_SPACE_CHAR ' '
 #define USER_INPUT_PRINT_CURRENT_CHAR_PERIOD_MS 100
 #define USER_INPUT_POLL_PERIOD_MS 1
+#define USER_INPUT_OMIT_EMPTY_LINES 0
 
 void UserInput_Init(void);
 void UserInput_Service(void);
