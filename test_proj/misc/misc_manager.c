@@ -144,7 +144,7 @@ static void Misc_ProcessSubprogramInput(MiscIdx_e idx, uint8_t argc, char **argv
 	}
 	else 
 	{
-		
+		BAD_ARG();
 	}
 }
 

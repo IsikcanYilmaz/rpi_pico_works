@@ -79,10 +79,12 @@ static bool UserInput_InputPollTimerCallback(struct repeating_timer_t *t)
 	}
 	if (c == USER_INPUT_ENTER_CHAR)
 	{
+		#if USER_INPUT_OMIT_EMPTY_LINES
 		if (usrInputIdx == 0)
 		{
 			return true;
 		}
+		#endif
 		usrInputBuf[usrInputIdx] = '\0';
 		printf("\n");
 		// UserCommand_ProcessInputLine((char *) &usrInputBuf);
