@@ -20,9 +20,7 @@ char *buttonGestureStrings[] = {
 	[GESTURE_LONG_PRESS] = "LONG_PRESS",
 	[GESTURE_VLONG_PRESS] = "VLONG_PRESS",
 	[GESTURE_VVLONG_PRESS] = "VVLONG_PRESS",
-	[GESTURE_DOUBLE_LONG_PRESS] = "DOUBLE_LONG_PRESS",
-	[GESTURE_DOUBLE_VLONG_PRESS] = "DOUBLE_VLONG_PRESS",
-	[GESTURE_DOUBLE_VVLONG_PRESS] = "DOUBLE_VVLONG_PRESS",
+	[GESTURE_VVVLONG_PRESS] = "VVVLONG_PRESS",
 	[GESTURE_NONE] = "NONE"
 };
 
@@ -44,7 +42,7 @@ static Button_e Button_GpioToButtonEnum(uint8_t gpio)
 
 static void Button_PrintContext(void)
 {
-	printf("b0:%d b1:%d | taps:%d gesture:%s ts:%llu\n", buttonContext.buttonState[BUTTON_0], buttonContext.buttonState[BUTTON_1], buttonContext.currentNumTaps, buttonGestureStrings[buttonContext.currentGesture], buttonContext.currentTapTimestamp);
+	// printf("b0:%d b1:%d | taps:%d gesture:%s ts:%llu\n", buttonContext.buttonState[BUTTON_0], buttonContext.buttonState[BUTTON_1], buttonContext.currentNumTaps, buttonGestureStrings[buttonContext.currentGesture], buttonContext.currentTapTimestamp);
 }
 
 static Button_e Button_GetLockedPressedButtons(void)
@@ -63,55 +61,29 @@ static Button_e Button_GetLockedPressedButtons(void)
 static bool Button_TimerCallback(struct repeating_timer_t *t)
 {
 	Button_e currPressed = Button_GetPressedButtons();
-	Button_e lockedPressed = Button_GetLockedPressedButtons();
-	// printf("BUTTON CALLBACK %s LOCKED %s\n", buttonEnumStrings[currPressed], buttonEnumStrings[lockedPressed]);
+	ButtonGesture_e g = GESTURE_NONE;
+	Button_e b = Button_GetLockedPressedButtons();
+	// printf("BUTTON CALLBACK %s LOCKED %s\n", buttonEnumStrings[currPressed], buttonEnumStrings[b]);
 	
 	// Button presses are done. time to process
 	if (currPressed == BUTTON_NONE)
 	{
-		ButtonGesture_e g = GESTURE_NONE;
-		// Single button gesture
-		if (lockedPressed == BUTTON_0 || lockedPressed == BUTTON_1)
+		uint64_t elapsedMs = (get_absolute_time() - buttonContext.currentTapTimestamp)/1000;
+		uint16_t numElapsedLongPress = elapsedMs / BUTTON_LONG_PRESS_TIME_MS;
+		if (buttonContext.currentNumTaps > 1 && b != BUTTON_BOTH)
 		{
-			if (buttonContext.currentNumTaps == 1) g = GESTURE_SINGLE_TAP;
 			if (buttonContext.currentNumTaps == 2) g = GESTURE_DOUBLE_TAP;
 			if (buttonContext.currentNumTaps == 3) g = GESTURE_TRIPLE_TAP;
 		}
 		else
 		{
-			// TODO handle single button long presses and generalize this stuff geez
-			uint64_t elapsedMs = (get_absolute_time() - buttonContext.currentTapTimestamp)/1000;
-			uint16_t numElapsedLongPress = elapsedMs / BUTTON_LONG_PRESS_TIME_MS;
-			// printf("ELAPSED %llu NUMLP %d\n", elapsedMs, numElapsedLongPress);
-			switch(numElapsedLongPress)
-			{
-				case 0:
-				{
-					break;
-				}
-				case 1:
-				{
-					g = GESTURE_DOUBLE_LONG_PRESS;
-					break;
-				}
-				case 2:
-				{
-					g = GESTURE_DOUBLE_VLONG_PRESS;
-					break;
-				}
-				case 3:
-				{
-					g = GESTURE_DOUBLE_VVLONG_PRESS;
-					break;
-				}
-				default:
-				{
-					g = GESTURE_DOUBLE_VVLONG_PRESS;
-					break;
-				}
-			}
+			if (numElapsedLongPress == GESTURE_SINGLE_TAP_SEC) g = GESTURE_SINGLE_TAP;
+			else if (numElapsedLongPress == GESTURE_LONG_PRESS_SEC) g = GESTURE_LONG_PRESS;
+			else if (numElapsedLongPress == GESTURE_VLONG_PRESS_SEC) g = GESTURE_VLONG_PRESS;
+			else if (numElapsedLongPress < GESTURE_VVVLONG_PRESS_SEC) g = GESTURE_VVLONG_PRESS;
+			else g = GESTURE_VVVLONG_PRESS;
 		}
-		Button_GestureHappened(lockedPressed, g);
+		Button_GestureHappened(b, g);
 		return false;
 	}
 	return true;
@@ -175,8 +147,11 @@ static void Button_GpioIrqCallback(uint gpio, uint32_t events)
 		{
 			Button_StopTimer(); // TODO?
 			Button_StartTimer();
+			Button_e otherButton = ((eventButton == BUTTON_0) ? BUTTON_1 : BUTTON_0);
 			// Increment num taps if this specific button wasnt pressed before
-			if (buttonContext.buttonState[eventButton] != BUTTON_STATE_PRESSED)
+			// Also, hack, dont increment if this is a double press.
+			if (buttonContext.buttonState[eventButton] != BUTTON_STATE_PRESSED &&
+				  buttonContext.buttonState[otherButton] != BUTTON_STATE_PRESSED)
 			{
 				buttonContext.currentNumTaps++;
 			}
@@ -254,7 +229,7 @@ Button_e Button_GetPressedButtons(void)
 void Button_GestureHappened(Button_e b, ButtonGesture_e g)
 {
 	// TODO make this section critical! disable irq
-	printf("Button gesture %s gesture %s\n", buttonEnumStrings[b], buttonGestureStrings[g]);
+	printf("Button press %s %d:%s\n", buttonEnumStrings[b], g, buttonGestureStrings[g]);
 	if (g < GESTURE_NONE)
 	{
 		Misc_TakeButtonInput(b, g);
