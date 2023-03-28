@@ -170,6 +170,11 @@ void Misc_TakeTextInput(uint8_t argc, char **argv)
 	}
 }
 
+void Misc_TakeButtonInput(Button_e button, ButtonGesture_e gesture)
+{
+	
+}
+
 void Misc_PrintPrograms(void)
 {
 	for (uint16_t i = 0; i < sizeof(miscPrograms)/sizeof(miscPrograms[0]); i++)

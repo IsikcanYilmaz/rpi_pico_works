@@ -11,8 +11,10 @@
 #include "screen_saver.h"
 
 UserCommand_t userCommands[] = {
+	{"help", UserCommand_Help, "Print help text"},
 	{"reset", UserCommand_Reset, "Reset the board into boot mode"},
 	{"test", UserCommand_Test, "test"},
+	{"time", UserCommand_GetTime, "Get timestamp"},
 	{"led", UserCommand_LedSet, "Set Led"},
 	{"loopback", UserCommand_Loopback, "Loopback"},
 	{"wifi", UserCommand_Wifi, "Wifi commands"},
@@ -47,6 +49,16 @@ void UserCommand_ProcessCommand(uint16_t argc, char **argv)
 }
 
 // COMMANDS // 
+
+void UserCommand_Help(uint8_t argc, char **argv)
+{
+	printf("Available commands:\n");
+	for (uint16_t i = 0; i < sizeof(userCommands)/sizeof(userCommands[0]); i++)
+	{
+		printf("%d) %s : %s\n", i, userCommands[i].command, userCommands[i].helptext);
+	}
+}
+
 void UserCommand_Reset(uint8_t argc, char **argv)
 {
 	if (argc == 2 && strcmp(argv[1], "boot") == 0)
@@ -60,6 +72,12 @@ void UserCommand_Reset(uint8_t argc, char **argv)
 void UserCommand_Test(uint8_t argc, char **argv)
 {
 	toggleLed();
+}
+
+void UserCommand_GetTime(uint8_t argc, char **argv)
+{
+	uint64_t t = get_absolute_time();
+	printf("time %llu\n", t);
 }
 
 void UserCommand_LedSet(uint8_t argc, char **argv)

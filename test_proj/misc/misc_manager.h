@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdint.h>
+#include "button.h"
 
 typedef enum MiscIdx_e_
 {
@@ -26,6 +27,7 @@ void Misc_ManagerInit(void);
 void Misc_StopProgram(void);
 void Misc_StartProgram(MiscIdx_e idx, void *arg);
 void Misc_TakeTextInput(uint8_t argc, char **argv);
+void Misc_TakeButtonInput(Button_e button, ButtonGesture_e gesture);
 void Misc_TimerStart(void);
 void Misc_TimerStop(void);
 void Misc_PrintPrograms(void);

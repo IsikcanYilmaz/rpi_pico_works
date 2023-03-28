@@ -17,6 +17,8 @@ void UserCommand_ProcessCommand(uint16_t argc, char **argv);
 void UserCommand_PrintCommand(uint16_t argc, char **argv);
 void UserCommand_Reset(uint8_t argc, char **argv);
 void UserCommand_Test(uint8_t argc, char **argv);
+void UserCommand_GetTime(uint8_t argc, char **argv);
+void UserCommand_Help(uint8_t argc, char **argv);
 void UserCommand_LedSet(uint8_t argc, char **argv);
 void UserCommand_Loopback(uint8_t argc, char **argv);
 void UserCommand_Wifi(uint8_t argc, char **argv);
