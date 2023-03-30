@@ -4,7 +4,7 @@ target_include_directories(misc PRIVATE
 													${CMAKE_CURRENT_LIST_DIR}
 													../
 													../oled_lib/Config
-													../oled_lib/GUI
+													# ../oled_lib/GUI
 													../oled_lib/OLED
 													../oled_lib/Fonts
 													../util/
@@ -16,7 +16,7 @@ target_link_libraries(misc PRIVATE
 											hardware_pwm
 											hardware_spi
 											OLED
-											GUI
+											# GUI
 											Fonts
 											Config
 											)

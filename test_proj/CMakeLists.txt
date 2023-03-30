@@ -12,22 +12,27 @@ pico_sdk_init()
 # subdirectories
 add_subdirectory(oled_lib/Config)    
 add_subdirectory(oled_lib/Fonts)    
-add_subdirectory(oled_lib/GUI)    
+# add_subdirectory(oled_lib/GUI)    
 add_subdirectory(oled_lib/OLED)
 add_subdirectory(misc/)
 add_subdirectory(util/)
 
 # rest of your project
 add_executable(test_proj
-	test.c test_functionality.c
-	usr_input.c usr_commands.c wifi.c
-	oled_manager.c button.c
+	test.c 
+	test_functionality.c
+	usr_input.c 
+	usr_commands.c 
+	wifi.c
+	oled_manager.c 
+	button.c 
+	paint.c
 	)
 
 target_include_directories(test_proj PRIVATE
 													 ${CMAKE_CURRENT_LIST_DIR}
 													 ./oled_lib/Config
-													 ./oled_lib/GUI
+													 # ./oled_lib/GUI
 													 ./oled_lib/OLED
 													 ./oled_lib/Fonts
 													 ./misc/
@@ -47,7 +52,7 @@ target_link_libraries(test_proj
 											util
 											# Below for the oled driver
 											OLED
-											GUI
+											# GUI
 											Fonts
 											Config
 											)

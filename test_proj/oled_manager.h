@@ -4,8 +4,8 @@
 
 #define OLED_WIDTH OLED_1in3_C_WIDTH //128
 #define OLED_HEIGHT OLED_1in3_C_HEIGHT //64
-#define PIXEL_BUF_LEN (OLED_WIDTH * OLED_HEIGHT)
-#define DEFAULT_FONT (&Font8)
+#define OLED_PIXEL_BUF_LEN (OLED_WIDTH * OLED_HEIGHT)
+#define OLED_DEFAULT_FONT (&Font8)
 #define OLED_MAN_POLL_PERIOD_MS (10)
 
 // /**
@@ -56,7 +56,7 @@ typedef struct OledManContext_s
 	sFONT *font;
 	struct repeating_timer oledManUpdateTimer;
 	volatile bool pixelBufUpdated; 
-	uint8_t pixelBuf[PIXEL_BUF_LEN];
+	uint8_t pixelBuf[OLED_PIXEL_BUF_LEN];
 } OledManContext_t;
 
 void OledMan_Init(void);

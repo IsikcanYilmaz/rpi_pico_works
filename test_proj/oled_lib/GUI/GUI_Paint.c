@@ -118,44 +118,46 @@ void Paint_SetPixel(UWORD Xpoint, UWORD Ypoint, UWORD Color)
         return;
     }      
     UWORD X, Y;
+		X = Xpoint;
+		Y = Ypoint;  
 
-    switch(Paint.Rotate) {
-    case 0:
-        X = Xpoint;
-        Y = Ypoint;  
-        break;
-    case 90:
-        X = Paint.WidthMemory - Ypoint - 1;
-        Y = Xpoint;
-        break;
-    case 180:
-        X = Paint.WidthMemory - Xpoint - 1;
-        Y = Paint.HeightMemory - Ypoint - 1;
-        break;
-    case 270:
-        X = Ypoint;
-        Y = Paint.HeightMemory - Xpoint - 1;
-        break;
-    default:
-        return;
-    }
-    
-    switch(Paint.Mirror) {
-    case MIRROR_NONE:
-        break;
-    case MIRROR_HORIZONTAL:
-        X = Paint.WidthMemory - X - 1;
-        break;
-    case MIRROR_VERTICAL:
-        Y = Paint.HeightMemory - Y - 1;
-        break;
-    case MIRROR_ORIGIN:
-        X = Paint.WidthMemory - X - 1;
-        Y = Paint.HeightMemory - Y - 1;
-        break;
-    default:
-        return;
-    }
+    // switch(Paint.Rotate) {
+    // case 0:
+    //     X = Xpoint;
+    //     Y = Ypoint;  
+    //     break;
+    // case 90:
+    //     X = Paint.WidthMemory - Ypoint - 1;
+    //     Y = Xpoint;
+    //     break;
+    // case 180:
+    //     X = Paint.WidthMemory - Xpoint - 1;
+    //     Y = Paint.HeightMemory - Ypoint - 1;
+    //     break;
+    // case 270:
+    //     X = Ypoint;
+    //     Y = Paint.HeightMemory - Xpoint - 1;
+    //     break;
+    // default:
+    //     return;
+    // }
+    // 
+    // switch(Paint.Mirror) {
+    // case MIRROR_NONE:
+    //     break;
+    // case MIRROR_HORIZONTAL:
+    //     X = Paint.WidthMemory - X - 1;
+    //     break;
+    // case MIRROR_VERTICAL:
+    //     Y = Paint.HeightMemory - Y - 1;
+    //     break;
+    // case MIRROR_ORIGIN:
+    //     X = Paint.WidthMemory - X - 1;
+    //     Y = Paint.HeightMemory - Y - 1;
+    //     break;
+    // default:
+    //     return;
+    // }
 
     if(X > Paint.WidthMemory || Y > Paint.HeightMemory){
         Debug("Exceeding display boundaries\r\n");
@@ -664,16 +666,16 @@ parameter:
 void Paint_DrawNum(UWORD Xpoint, UWORD Ypoint, double Nummber,
                    sFONT* Font, UWORD Digit,UWORD Color_Foreground, UWORD Color_Background)
 {
-    int16_t Num_Bit = 0, Str_Bit = 0;
-    uint8_t Str_Array[ARRAY_LEN] = {0}, Num_Array[ARRAY_LEN] = {0};
-    uint8_t *pStr = Str_Array;
+	int16_t Num_Bit = 0, Str_Bit = 0;
+	uint8_t Str_Array[ARRAY_LEN] = {0}, Num_Array[ARRAY_LEN] = {0};
+	uint8_t *pStr = Str_Array;
 	int temp = Nummber;
 	float decimals;
 	uint8_t i;
-    if (Xpoint > Paint.Width || Ypoint > Paint.Height) {
-        Debug("Paint_DisNum Input exceeds the normal display range\r\n");
-        return;
-    }
+	if (Xpoint > Paint.Width || Ypoint > Paint.Height) {
+		Debug("Paint_DisNum Input exceeds the normal display range\r\n");
+		return;
+	}
 
 	if(Digit > 0) {		
 		decimals = Nummber - temp;
@@ -692,22 +694,22 @@ void Paint_DrawNum(UWORD Xpoint, UWORD Ypoint, double Nummber,
 	}
 
 	temp = Nummber;
-    //Converts a number to a string
-    while (temp) {
-        Num_Array[Num_Bit] = temp % 10 + '0';
-        Num_Bit++;
-        temp /= 10;
-    }
-		
-    //The string is inverted
-    while (Num_Bit > 0) {
-        Str_Array[Str_Bit] = Num_Array[Num_Bit - 1];
-        Str_Bit ++;
-        Num_Bit --;
-    }
+	//Converts a number to a string
+	while (temp) {
+		Num_Array[Num_Bit] = temp % 10 + '0';
+		Num_Bit++;
+		temp /= 10;
+	}
 
-    //show
-    Paint_DrawString_EN(Xpoint, Ypoint, (const char*)pStr, Font, Color_Background, Color_Foreground);
+	//The string is inverted
+	while (Num_Bit > 0) {
+		Str_Array[Str_Bit] = Num_Array[Num_Bit - 1];
+		Str_Bit ++;
+		Num_Bit --;
+	}
+
+	//show
+	Paint_DrawString_EN(Xpoint, Ypoint, (const char*)pStr, Font, Color_Background, Color_Foreground);
 }
 
 /******************************************************************************

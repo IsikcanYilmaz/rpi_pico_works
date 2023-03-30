@@ -13,6 +13,14 @@
 // OLED v
 #include "DEV_Config.h"
 
+static void Main_Init(void)
+{
+	UserInput_Init();
+	Wifi_Init();
+	OledMan_Init();
+	Button_Init();
+}
+
 int main() {
 	// setup_default_uart();
 	stdio_init_all();
@@ -20,10 +28,7 @@ int main() {
 		printf("Wi-Fi init failed");
 		return -1;
 	}
-	UserInput_Init();
-	Wifi_Init();
-	OledMan_Init();
-	Button_Init();
+	Main_Init();
 	toggleLed();
 	while(1)
 	{

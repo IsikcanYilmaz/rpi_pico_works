@@ -6,7 +6,8 @@
 #include "test_functionality.h"
 #include "wifi.h"
 #include "oled_manager.h"
-#include "GUI_Paint.h"
+// #include "GUI_Paint.h"
+#include "paint.h"
 #include "game_of_life.h"
 #include "screen_saver.h"
 
@@ -61,17 +62,22 @@ void UserCommand_Help(uint8_t argc, char **argv)
 
 void UserCommand_Reset(uint8_t argc, char **argv)
 {
-	if (argc == 2 && strcmp(argv[1], "boot") == 0)
+	ASSERT_ARGS(2);
+	if (strcmp(argv[1], "boot") == 0)
 	{
 		softwareReset(true);
 		return;
 	}
-	softwareReset(false);
+	else if (strcmp(argv[1], "sw") == 0)
+	{
+		softwareReset(false);
+		return;
+	}
 }
 
 void UserCommand_Test(uint8_t argc, char **argv)
 {
-	toggleLed();
+	OledMan_DrawRectangle(0, 0, 50, 50, true);
 }
 
 void UserCommand_GetTime(uint8_t argc, char **argv)
@@ -128,7 +134,7 @@ void UserCommand_Oled(uint8_t argc, char **argv)
 		uint16_t y1 = atoi(argv[3]);
 		uint16_t x2 = atoi(argv[4]);
 		uint16_t y2 = atoi(argv[5]);
-		OledMan_DrawLine(x1, x2, y1, y2);
+		OledMan_DrawLine(x1, y1, x2, y2);
 		printf("Draw line from %d %d to %d %d\n", x1, y1, x2, y2);
 	}
 	else if (strcmp(argv[1], "circle") == 0)
