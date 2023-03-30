@@ -192,6 +192,11 @@ void ScreenSaver_Draw(void)
 															 SCREEN_MAX_X, SCREEN_MAX_Y, false);
 }
 
+void ScreenSaver_ButtonInput(Button_e b, ButtonGesture_e g)
+{
+
+}
+
 bool ScreenSaver_IsRunning(void)
 {
 	return screenSaverContext.running;

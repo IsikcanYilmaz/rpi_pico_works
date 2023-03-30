@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdint.h>
+#include "misc_manager.h"
 
 #define SCREENSAVER_UPDATE_PERIOD_MS 50
 
@@ -56,9 +57,11 @@ typedef struct ScreenSaverContext_t
 
 bool ScreenSaver_Init(void *arg);
 void ScreenSaver_Deinit(void);
-void ScreenSaver_Start(void);
-void ScreenSaver_Stop(void);
 void ScreenSaver_Update(void);
 void ScreenSaver_Draw(void);
+void ScreenSaver_Start(void);
+void ScreenSaver_Stop(void);
+void ScreenSaver_ButtonInput(Button_e b, ButtonGesture_e g);
+
 bool ScreenSaver_IsRunning(void);
 

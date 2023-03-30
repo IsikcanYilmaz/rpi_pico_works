@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "bitmap.h"
+#include "misc_manager.h"
+#include "button.h"
 
 #define GOL_BOARD_BUF_LEN (128 * 64 / 8)
 #define GOL_WIDTH 126
@@ -24,9 +26,11 @@ void Gol_Update(void);
 void Gol_Draw(void);
 void Gol_Start(void);
 void Gol_Stop(void);
+void Gol_ButtonInput(Button_e b, ButtonGesture_e g);
 
 uint8_t Gol_GetAliveNeighbors(uint8_t x, uint8_t y);
 void Gol_SetCell(uint8_t x, uint8_t y, bool val);
 void Gol_SetBlockAbsolute(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2);
 void Gol_SetBlock(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
-void Gol_SpawnBlockByChance(void);
+void Gol_SpawnRandomBlock(void);
+void Gol_SpawnRandomBlockByChance(void);

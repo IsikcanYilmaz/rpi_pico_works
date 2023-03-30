@@ -10,7 +10,7 @@
 #define MISC_SCREEN_SAVER_ENABLED 1
 #define MISC_GAME_OF_LIFE_ENABLED 1
 
-Misc_t miscPrograms[] = 
+MiscProgram_t miscPrograms[] = 
 {
 	#if MISC_SCREEN_SAVER_ENABLED
 	[MISC_SCREEN_SAVER] = {
@@ -21,6 +21,7 @@ Misc_t miscPrograms[] =
 		.stop = ScreenSaver_Stop,
 		.update = ScreenSaver_Update,
 		.draw = ScreenSaver_Draw,
+		.buttonInput = ScreenSaver_ButtonInput,
 		.isRunning = false,
 		.updatePeriodMs = SCREENSAVER_UPDATE_PERIOD_MS,
 		},
@@ -34,6 +35,7 @@ Misc_t miscPrograms[] =
 		.stop = Gol_Stop,
 		.update = Gol_Update,
 		.draw = Gol_Draw,
+		.buttonInput = Gol_ButtonInput,
 		.isRunning = false,
 		.updatePeriodMs = GOL_UPDATE_PERIOD_MS,
 		},
@@ -41,7 +43,7 @@ Misc_t miscPrograms[] =
 };
 
 MiscIdx_e currentProgramIdx = MISC_MAX;
-Misc_t *currentProgram = NULL;
+MiscProgram_t *currentProgram = NULL;
 struct repeating_timer miscUpdateTimer;
 
 static bool Misc_TimerCallback(struct repeating_timer *t)
@@ -172,7 +174,21 @@ void Misc_TakeTextInput(uint8_t argc, char **argv)
 
 void Misc_TakeButtonInput(Button_e button, ButtonGesture_e gesture)
 {
-	
+	if (button == BUTTON_0 && gesture == GESTURE_VVLONG_PRESS)
+	{
+		MiscIdx_e tmpIdx = currentProgramIdx;
+		Misc_StopProgram();
+		currentProgramIdx = tmpIdx+1;
+		if (currentProgramIdx >= MISC_MAX)
+		{
+			currentProgramIdx = MISC_SCREEN_SAVER;
+		}
+		Misc_StartProgram(currentProgramIdx, NULL);
+	}
+	else
+	{
+		miscPrograms[currentProgramIdx].buttonInput(button, gesture);
+	}
 }
 
 void Misc_PrintPrograms(void)

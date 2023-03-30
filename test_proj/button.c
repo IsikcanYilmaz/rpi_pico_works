@@ -42,7 +42,7 @@ static Button_e Button_GpioToButtonEnum(uint8_t gpio)
 
 static void Button_PrintContext(void)
 {
-	// printf("b0:%d b1:%d | taps:%d gesture:%s ts:%llu\n", buttonContext.buttonState[BUTTON_0], buttonContext.buttonState[BUTTON_1], buttonContext.currentNumTaps, buttonGestureStrings[buttonContext.currentGesture], buttonContext.currentTapTimestamp);
+	printf("b0:%d b1:%d | taps:%d gesture:%s ts:%llu\n", buttonContext.buttonState[BUTTON_0], buttonContext.buttonState[BUTTON_1], buttonContext.currentNumTaps, buttonGestureStrings[buttonContext.currentGesture], buttonContext.currentTapTimestamp);
 }
 
 static Button_e Button_GetLockedPressedButtons(void)
@@ -230,7 +230,7 @@ void Button_GestureHappened(Button_e b, ButtonGesture_e g)
 {
 	// TODO make this section critical! disable irq
 	printf("Button press %s %d:%s\n", buttonEnumStrings[b], g, buttonGestureStrings[g]);
-	if (g < GESTURE_NONE)
+	if (g < GESTURE_NONE && b < BUTTON_NONE)
 	{
 		Misc_TakeButtonInput(b, g);
 	}

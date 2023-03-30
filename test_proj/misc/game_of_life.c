@@ -1,6 +1,7 @@
 #include "game_of_life.h"
 #include "oled_manager.h"
 #include "test_functionality.h"
+#include "button.h"
 #include <stdlib.h>
 
 uint8_t currentBoardBuf[GOL_BOARD_BUF_LEN];
@@ -73,7 +74,7 @@ void Gol_Update(void)
 	golContext.currentBoard = golContext.nextBoard;
 	golContext.nextBoard = tmp;
 
-	Gol_SpawnBlockByChance();
+	// Gol_SpawnBlockByChance();
 }
 
 void Gol_Draw(void)
@@ -97,6 +98,11 @@ void Gol_Start(void)
 
 void Gol_Stop(void)
 {
+}
+
+void Gol_ButtonInput(Button_e b, ButtonGesture_e g)
+{
+	Gol_SpawnRandomBlock();
 }
 
 uint8_t Gol_GetAliveNeighbors(uint8_t x, uint8_t y)
@@ -158,7 +164,16 @@ void Gol_SetBlock(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 	Gol_SetBlockAbsolute(x, y, x+w, y+h);
 }
 
-void Gol_SpawnBlockByChance(void)
+void Gol_SpawnRandomBlock(void)
+{
+	uint8_t x = rand() % GOL_WIDTH;
+	uint8_t y = rand() % GOL_HEIGHT;
+	uint8_t w = rand() % (GOL_WIDTH-x);
+	uint8_t h = rand() % (GOL_HEIGHT-y);
+	Gol_SetBlock(x, y, w, h);
+}
+
+void Gol_SpawnRandomBlockByChance(void)
 {
 	if (!GOL_SPAWN_BLOCKS)
 	{
@@ -167,10 +182,6 @@ void Gol_SpawnBlockByChance(void)
 	uint8_t roll = rand() % 100;
 	if (roll <= GOL_SPAWN_BLOCK_CHANCE)
 	{
-		uint8_t x = rand() % GOL_WIDTH;
-		uint8_t y = rand() % GOL_HEIGHT;
-		uint8_t w = rand() % (GOL_WIDTH-x);
-		uint8_t h = rand() % (GOL_HEIGHT-y);
-		Gol_SetBlock(x, y, w, h);
+		Gol_SpawnRandomBlock();
 	}
 }

@@ -1,3 +1,5 @@
+#ifndef __MISC_MAN_H_
+#define __MISC_MAN_H_
 #include <stdbool.h>
 #include <stdint.h>
 #include "button.h"
@@ -9,6 +11,13 @@ typedef enum MiscIdx_e_
 	MISC_MAX,
 } MiscIdx_e;
 
+typedef enum InputType_e_
+{
+	INPUT_STRING,
+	INPUT_BUTTON,
+	INPUT_INET,
+} InputType_e;
+
 typedef struct Misc_s
 {
 	char *name;
@@ -18,10 +27,11 @@ typedef struct Misc_s
 	void (*stop)(void);
 	void (*update)(void);
 	void (*draw)(void);
+	void (*buttonInput)(Button_e b, ButtonGesture_e g);
 	bool isRunning;
 	uint16_t updatePeriodMs;
 	// TODO at some point make all misc programs use the same memory pool.
-} Misc_t;
+} MiscProgram_t;
 
 void Misc_ManagerInit(void);
 void Misc_StopProgram(void);
@@ -31,3 +41,4 @@ void Misc_TakeButtonInput(Button_e button, ButtonGesture_e gesture);
 void Misc_TimerStart(void);
 void Misc_TimerStop(void);
 void Misc_PrintPrograms(void);
+#endif

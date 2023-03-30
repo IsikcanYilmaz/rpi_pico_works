@@ -19,6 +19,8 @@ static void Main_Init(void)
 	Wifi_Init();
 	OledMan_Init();
 	Button_Init();
+
+	Misc_StartProgram(MISC_GAME_OF_LIFE, NULL);
 }
 
 int main() {
