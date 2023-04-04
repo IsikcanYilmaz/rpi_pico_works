@@ -28,6 +28,7 @@ add_executable(test_proj
 	oled_manager.c 
 	button.c 
 	paint.c
+	gui.c
 	)
 
 target_include_directories(test_proj PRIVATE
