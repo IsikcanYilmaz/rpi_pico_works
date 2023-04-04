@@ -111,6 +111,10 @@ void UserCommand_Wifi(uint8_t argc, char **argv)
 		printf("Wifi scan\n");
 		Wifi_Scan();
 	}
+	else if (strcmp(argv[1], "list") == 0)
+	{
+		Wifi_PrintRecords();
+	}
 	else if (strcmp(argv[1], "connect") == 0)
 	{
 		ASSERT_ARGS(4);

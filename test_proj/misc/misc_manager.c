@@ -3,12 +3,14 @@
 #include "hardware/timer.h"
 #include "screen_saver.h"
 #include "game_of_life.h"
+#include "wifi_scan.h"
 #include "usr_commands.h"
 #include <stdio.h>
 #include <string.h>
 
 #define MISC_SCREEN_SAVER_ENABLED 1
 #define MISC_GAME_OF_LIFE_ENABLED 1
+#define MISC_WIFI_SCAN_ENABLED 1
 
 MiscProgram_t miscPrograms[] = 
 {
@@ -38,6 +40,20 @@ MiscProgram_t miscPrograms[] =
 		.buttonInput = Gol_ButtonInput,
 		.isRunning = false,
 		.updatePeriodMs = GOL_UPDATE_PERIOD_MS,
+		},
+	#endif
+	#if MISC_WIFI_SCAN_ENABLED
+	[MISC_WIFI_SCAN] = {
+		.name = "wifi_scan",
+		.init = WifiScan_Init,
+		.deinit = WifiScan_Deinit,
+		.start = WifiScan_Start,
+		.stop = WifiScan_Stop,
+		.update = WifiScan_Update,
+		.draw = WifiScan_Draw,
+		.buttonInput = WifiScan_ButtonInput,
+		.isRunning = false,
+		.updatePeriodMs = WIFI_SCAN_UPDATE_PERIOD_MS,
 		},
 	#endif
 };

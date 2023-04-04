@@ -2,6 +2,7 @@
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 #include "hardware/timer.h"
+#include <string.h>
 
 static struct repeating_timer wifiPollTimer;
 
@@ -29,14 +30,51 @@ static void Wifi_PrintAuthMode(int auth)
 	}
 }
 
+static void Wifi_PrintScanResult(cyw43_ev_scan_result_t *result)
+{
+	printf("ssid: %-32s rssi: %4d chan: %3d mac: %02x:%02x:%02x:%02x:%02x:%02x sec: 0x%x ",
+					 result->ssid, result->rssi, result->channel,
+					 result->bssid[0], result->bssid[1], result->bssid[2], result->bssid[3], result->bssid[4],
+					 result->bssid[5], result->auth_mode);
+	Wifi_PrintAuthMode(result->auth_mode);
+	printf("\n");
+}
+
+static bool Wifi_CompareMac(uint8_t *buf1, uint8_t *buf2)
+{
+	for (uint8_t i = 0; i < 6; i++)
+	{
+		if (buf1[i] != buf2[i])
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+static bool Wifi_RecordScanResult(cyw43_ev_scan_result_t *result)
+{
+	for (uint16_t i = 0; i < wifiContext.scanNumDevices; i++)
+	{
+		if (Wifi_CompareMac(&(result->bssid), &(wifiContext.scanBuf[i].bssid))) // we saw this before
+		{
+			wifiContext.scanBuf[i] = *result;	
+			return true;
+		}
+	}
+	if (wifiContext.scanNumDevices == WIFI_SCAN_BUF_LEN-1)
+	{
+		printf("Scan buf full!\n");
+		return false;
+	}
+	wifiContext.scanBuf[wifiContext.scanNumDevices] = *result;
+	wifiContext.scanNumDevices++;
+}
+
 static int Wifi_ScanResult(void *env, const cyw43_ev_scan_result_t *result) {
 	if (result) {
-		printf("ssid: %-32s rssi: %4d chan: %3d mac: %02x:%02x:%02x:%02x:%02x:%02x sec: 0x%x ",
-				 result->ssid, result->rssi, result->channel,
-				 result->bssid[0], result->bssid[1], result->bssid[2], result->bssid[3], result->bssid[4], result->bssid[5],
-				 result->auth_mode);
-		Wifi_PrintAuthMode(result->auth_mode);
-		printf("\n");
+		Wifi_PrintScanResult(result);
+		Wifi_RecordScanResult(result);
 	}
 	return 0;
 }
@@ -46,10 +84,20 @@ static bool Wifi_Poll(struct repeating_timer *t)
 	cyw43_arch_poll();
 }
 
+
 void Wifi_Init(void)
 {
+	wifiContext.isConnected = false;
+	wifiContext.ssid = NULL;
+	Wifi_ClearScanBuf();
 	cyw43_arch_enable_sta_mode();
 	Wifi_PollTimerStart();
+}
+
+void Wifi_ClearScanBuf(void)
+{
+	memset(&wifiContext.scanBuf, 0x00, sizeof(cyw43_ev_scan_result_t) * WIFI_SCAN_BUF_LEN);
+	wifiContext.scanNumDevices = 0;
 }
 
 void Wifi_Scan(void)
@@ -89,4 +137,28 @@ bool Wifi_Connect(char *ssid, char *pass)
 		printf("Connected!\n");
 		return true;
 	}
+}
+
+void Wifi_PrintRecords(void)
+{
+	for (uint16_t i = 0; i < wifiContext.scanNumDevices; i++)
+	{
+		printf("%d ", i);
+		Wifi_PrintScanResult(&(wifiContext.scanBuf[i]));
+	}
+}
+
+uint16_t Wifi_GetNumScanRecords(void)
+{
+	return wifiContext.scanNumDevices;
+}
+
+cyw43_ev_scan_result_t* Wifi_GetScanRecordByIdx(uint16_t idx)
+{
+	if (idx >= wifiContext.scanNumDevices) 
+	{
+		printf("Bad scan record idx! %d\n", idx);
+		return NULL;
+	}
+	return &(wifiContext.scanBuf[idx]);
 }

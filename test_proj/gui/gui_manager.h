@@ -1,10 +1,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define GUI_MAN_POLL_PERIOD_MS 150
+#define GUI_MAN_POLL_PERIOD_MS 20
 
-#define CHAR_PIX_W 5
-#define CHAR_PIX_H 10
+#define GUI_CHAR_PIX_W 5
+#define GUI_CHAR_PIX_H 10
 
 typedef struct GuiManContext_t_
 {

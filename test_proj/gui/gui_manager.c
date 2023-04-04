@@ -3,6 +3,7 @@
 #include "misc_manager.h"
 #include "button.h"
 #include "gui_manager.h"
+#include "pointed_list.h"
 
 GuiManContext_t guiManContext;
 
@@ -32,12 +33,12 @@ void GuiMan_Draw(void)
 {
 	OledMan_ClearBuf();
 	uint8_t x, y, rectW, rectH;
-	rectW = 100;
-	rectH = CHAR_PIX_H;
+	rectW = 117;
+	rectH = GUI_CHAR_PIX_H;
 	for (uint16_t i = 0; i < Misc_GetNumPrograms(); i++)
 	{
 		x = 10;
-		y = i * CHAR_PIX_H;
+		y = i * GUI_CHAR_PIX_H;
 		char *name = ((MiscProgram_t *) Misc_GetProgramPtrByIdx(i))->name;
 		OledMan_SetColor(WHITE);
 		if (i == guiManContext.programSelectionIdx)
@@ -57,7 +58,7 @@ void GuiMan_Draw(void)
 			// draw string white 
 			OledMan_DrawRectangle(x, y, rectW, rectH, 0);
 			OledMan_SetColor(WHITE);
-			OledMan_DrawString(x, y, name);
+			OledMan_DrawString(x, y + 2, name);
 		}
 	}
 }

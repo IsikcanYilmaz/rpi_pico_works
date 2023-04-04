@@ -4,7 +4,7 @@
 
 PaintContext_e paintContext;
 
-#define ASSERT_COORDS(x,y) {if (!Paint_CheckValidCoords(x,y)) { printf("Bad coords %d %d\n", x, y); return; }}
+#define ASSERT_COORDS(x,y) {if (!Paint_CheckValidCoords(x,y)) { /*printf("Bad coords %d %d\n", x, y); */ return; }}
 
 static inline bool Paint_CheckValidCoords(uint16_t x, uint16_t y)
 {

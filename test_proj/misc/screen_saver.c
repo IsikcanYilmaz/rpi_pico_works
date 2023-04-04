@@ -7,7 +7,6 @@
 
 ScreenSaverContext_s screenSaverContext = {.initialized = false};
 char screenSaverString[SS_STR_MAX];
-struct repeating_timer screenSaverUpdateTimer;
 
 const char *directionStrings[] = {
 	[DOWN_RIGHT] = "DOWN_RIGHT",
@@ -96,16 +95,13 @@ void ScreenSaver_Start(void)
 		return;
 	}
 	// OledMan_ClearBuf();
-	// add_repeating_timer_ms(SCREENSAVER_UPDATE_PERIOD_MS,ScreenSaver_TimerCallback, NULL, &screenSaverUpdateTimer);
 	screenSaverContext.running = true;
 }
 
 void ScreenSaver_Stop(void)
 {
-	// cancel_repeating_timer(&screenSaverUpdateTimer);
 	screenSaverContext.running = false;
 	printf("Screen saver stopped!\n");
-	// OledMan_ClearBuf();
 }
 
 void ScreenSaver_Update(void)
