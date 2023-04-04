@@ -33,6 +33,14 @@ void Paint_Init(uint8_t *buf, uint16_t w, uint16_t h)
 	Paint_Clear();
 }
 
+void Paint_SetColor(PaintColor_e c)
+{
+	if (c <= COLOR_MAX)
+	{
+		paintContext.color = c;
+	}
+}
+
 void Paint_SetPixel(uint16_t x, uint16_t y, uint8_t val)
 {
 	ASSERT_COORDS(x,y);
@@ -66,8 +74,8 @@ void Paint_SetFont(sFONT *font)
 // Geometry
 void Paint_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
-	ASSERT_COORDS(x1, y1);
-	ASSERT_COORDS(x2, y2);
+	// ASSERT_COORDS(x1, y1);
+	// ASSERT_COORDS(x2, y2);
 
 	// Gotten/modded the pico oled driver
 	uint16_t Xpoint = x1;
@@ -83,9 +91,9 @@ void Paint_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 	//Cumulative error
 	int Esp = dx + dy;
 	// char Dotted_Len = 0;
-
+	uint8_t val = (paintContext.color == WHITE ? 1 : 0);
 	for (;;) {
-		Paint_SetPixel(Xpoint, Ypoint, 1);
+		Paint_SetPixel(Xpoint, Ypoint, val);
 		if (2 * Esp >= dy) {
 			if (Xpoint == x2)
 				break;
@@ -103,8 +111,8 @@ void Paint_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 
 void Paint_DrawRect(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, bool fill)
 {
-	ASSERT_COORDS(x1, y1);
-	ASSERT_COORDS(x2, y2);
+	// ASSERT_COORDS(x1, y1);
+	// ASSERT_COORDS(x2, y2);
 
 	// Gotten/modded the pico oled driver
 	if (fill) {
@@ -121,7 +129,7 @@ void Paint_DrawRect(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, bool fil
 
 void Paint_DrawCircle(uint16_t xCenter, uint16_t yCenter, uint16_t r, bool fill)
 {
-	ASSERT_COORDS(xCenter, yCenter);
+	// ASSERT_COORDS(xCenter, yCenter);
 
 	// Gotten/modded the pico oled driver
 	//Draw a circle from(0, R) as a starting point
@@ -133,20 +141,21 @@ void Paint_DrawCircle(uint16_t xCenter, uint16_t yCenter, uint16_t r, bool fill)
 	int16_t Esp = 3 - (r << 1 );
 
 	int16_t sCountY;
+	uint8_t val = (paintContext.color == WHITE ? 1 : 0);
 	if (fill) 
 	{
 		while (XCurrent <= YCurrent ) //Realistic circles
 		{ 
 			for (sCountY = XCurrent; sCountY <= YCurrent; sCountY ++ ) 
 			{
-				Paint_SetPixel(xCenter + XCurrent, yCenter + sCountY, 1);//1
-				Paint_SetPixel(xCenter - XCurrent, yCenter + sCountY, 1);//2
-				Paint_SetPixel(xCenter - sCountY, yCenter + XCurrent, 1);//3
-				Paint_SetPixel(xCenter - sCountY, yCenter - XCurrent, 1);//4
-				Paint_SetPixel(xCenter - XCurrent, yCenter - sCountY, 1);//5
-				Paint_SetPixel(xCenter + XCurrent, yCenter - sCountY, 1);//6
-				Paint_SetPixel(xCenter + sCountY, yCenter - XCurrent, 1);//7
-				Paint_SetPixel(xCenter + sCountY, yCenter + XCurrent, 1);
+				Paint_SetPixel(xCenter + XCurrent, yCenter + sCountY, val);//1
+				Paint_SetPixel(xCenter - XCurrent, yCenter + sCountY, val);//2
+				Paint_SetPixel(xCenter - sCountY, yCenter + XCurrent, val);//3
+				Paint_SetPixel(xCenter - sCountY, yCenter - XCurrent, val);//4
+				Paint_SetPixel(xCenter - XCurrent, yCenter - sCountY, val);//5
+				Paint_SetPixel(xCenter + XCurrent, yCenter - sCountY, val);//6
+				Paint_SetPixel(xCenter + sCountY, yCenter - XCurrent, val);//7
+				Paint_SetPixel(xCenter + sCountY, yCenter + XCurrent, val);
 			}
 			if (Esp < 0 )
 				Esp += 4 * XCurrent + 6;
@@ -161,14 +170,14 @@ void Paint_DrawCircle(uint16_t xCenter, uint16_t yCenter, uint16_t r, bool fill)
 	{ 
 		while (XCurrent <= YCurrent ) 
 		{
-			Paint_SetPixel(xCenter + XCurrent, yCenter + YCurrent, 1);//1
-			Paint_SetPixel(xCenter - XCurrent, yCenter + YCurrent, 1);//2
-			Paint_SetPixel(xCenter - YCurrent, yCenter + XCurrent, 1);//3
-			Paint_SetPixel(xCenter - YCurrent, yCenter - XCurrent, 1);//4
-			Paint_SetPixel(xCenter - XCurrent, yCenter - YCurrent, 1);//5
-			Paint_SetPixel(xCenter + XCurrent, yCenter - YCurrent, 1);//6
-			Paint_SetPixel(xCenter + YCurrent, yCenter - XCurrent, 1);//7
-			Paint_SetPixel(xCenter + YCurrent, yCenter + XCurrent, 1);//0
+			Paint_SetPixel(xCenter + XCurrent, yCenter + YCurrent, val);//1
+			Paint_SetPixel(xCenter - XCurrent, yCenter + YCurrent, val);//2
+			Paint_SetPixel(xCenter - YCurrent, yCenter + XCurrent, val);//3
+			Paint_SetPixel(xCenter - YCurrent, yCenter - XCurrent, val);//4
+			Paint_SetPixel(xCenter - XCurrent, yCenter - YCurrent, val);//5
+			Paint_SetPixel(xCenter + XCurrent, yCenter - YCurrent, val);//6
+			Paint_SetPixel(xCenter + YCurrent, yCenter - XCurrent, val);//7
+			Paint_SetPixel(xCenter + YCurrent, yCenter + XCurrent, val);//0
 
 			if (Esp < 0 )
 			{
@@ -187,12 +196,13 @@ void Paint_DrawCircle(uint16_t xCenter, uint16_t yCenter, uint16_t r, bool fill)
 // Strings
 void Paint_DrawChar(uint16_t x, uint16_t y, char c)
 {
-	ASSERT_COORDS(x, y);
+	// ASSERT_COORDS(x, y);
 	uint16_t Page, Column;
 
 	uint32_t Char_Offset = (c - ' ') * paintContext.font->Height * (paintContext.font->Width / 8 + (paintContext.font->Width % 8 ? 1 : 0));
 	const unsigned char *ptr = &paintContext.font->table[Char_Offset];
 
+	uint8_t val = (paintContext.color == WHITE ? 1 : 0);
 	for (Page = 0; Page < paintContext.font->Height; Page ++ ) {
 		for (Column = 0; Column < paintContext.font->Width; Column ++ ) {
 
@@ -212,7 +222,7 @@ void Paint_DrawChar(uint16_t x, uint16_t y, char c)
 			// }
 			if (*ptr & (0x80 >> (Column % 8)))
 			{
-				Paint_SetPixel(x + Column, y + Page, 1);
+				Paint_SetPixel(x + Column, y + Page, val);
 			}
 			//One pixel is 8 bits
 			if (Column % 8 == 7)
@@ -225,7 +235,7 @@ void Paint_DrawChar(uint16_t x, uint16_t y, char c)
 
 void Paint_DrawString(uint16_t x, uint16_t y, char *str)
 {
-	ASSERT_COORDS(x,y);
+	// ASSERT_COORDS(x,y);
 	
 	uint16_t Xpoint = x;
 	uint16_t Ypoint = y;

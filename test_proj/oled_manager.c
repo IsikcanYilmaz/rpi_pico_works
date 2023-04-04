@@ -115,3 +115,7 @@ void OledMan_SetPixel(uint16_t x, uint16_t y, uint8_t set)
 	oledManContext.pixelBufUpdated = true;
 }
 
+void OledMan_SetColor(PaintColor_e c)
+{
+	Paint_SetColor(c);
+}

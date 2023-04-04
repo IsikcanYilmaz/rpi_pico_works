@@ -8,6 +8,7 @@
 #include "oled_manager.h"
 #include "game_of_life.h"
 #include "screen_saver.h"
+#include "gui_manager.h"
 #include "button.h"
 
 // OLED v
@@ -19,8 +20,9 @@ static void Main_Init(void)
 	Wifi_Init();
 	OledMan_Init();
 	Button_Init();
+	GuiMan_Init();
 
-	Misc_StartProgram(MISC_GAME_OF_LIFE, NULL);
+	// Misc_StartProgram(MISC_GAME_OF_LIFE, NULL);
 }
 
 int main() {

@@ -16,6 +16,7 @@ add_subdirectory(oled_lib/Fonts)
 # add_subdirectory(oled_lib/GUI)    
 add_subdirectory(oled_lib/OLED)
 add_subdirectory(misc/)
+add_subdirectory(gui/)
 add_subdirectory(util/)
 
 # rest of your project
@@ -28,7 +29,6 @@ add_executable(test_proj
 	oled_manager.c 
 	button.c 
 	paint.c
-	gui.c
 	)
 
 target_include_directories(test_proj PRIVATE
@@ -38,6 +38,7 @@ target_include_directories(test_proj PRIVATE
 													 ./oled_lib/OLED
 													 ./oled_lib/Fonts
 													 ./misc/
+													 ./gui/
 													 ./util/
 													)
 
@@ -52,6 +53,7 @@ target_link_libraries(test_proj
 											# misc
 											misc
 											util
+											gui
 											# Below for the oled driver
 											OLED
 											# GUI

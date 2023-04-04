@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "misc_manager.h"
+#include "gui_manager.h"
 
 ButtonContext_s buttonContext;
 
@@ -232,7 +233,8 @@ void Button_GestureHappened(Button_e b, ButtonGesture_e g)
 	printf("Button press %s %d:%s\n", buttonEnumStrings[b], g, buttonGestureStrings[g]);
 	if (g < GESTURE_NONE && b < BUTTON_NONE)
 	{
-		Misc_TakeButtonInput(b, g);
+		// Misc_TakeButtonInput(b, g);
+		GuiMan_TakeButtonInput(b, g);
 	}
 	Button_ResetContext();
 }

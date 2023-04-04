@@ -41,4 +41,8 @@ void Misc_TakeButtonInput(Button_e button, ButtonGesture_e gesture);
 void Misc_TimerStart(void);
 void Misc_TimerStop(void);
 void Misc_PrintPrograms(void);
+uint16_t Misc_GetNumPrograms(void);
+MiscProgram_t* Misc_GetProgramPtrByIdx(MiscIdx_e i);
+bool Misc_IsProgramRunning(void);
+MiscIdx_e Misc_GetCurrentRunningProgramIdx(void);
 #endif

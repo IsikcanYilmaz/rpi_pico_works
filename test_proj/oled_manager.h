@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include "OLED_1in3_c.h"
 #include "fonts.h"
+#include "paint.h"
 
 #define OLED_WIDTH OLED_1in3_C_WIDTH //128
 #define OLED_HEIGHT OLED_1in3_C_HEIGHT //64
@@ -72,3 +73,4 @@ void OledMan_DrawString(uint16_t x, uint16_t y, char *str);
 void OledMan_DrawRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, bool fill);
 void OledMan_DrawRectangleAbsolute(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, bool fill);
 void OledMan_SetPixel(uint16_t x, uint16_t y, uint8_t set);
+void OledMan_SetColor(PaintColor_e c);

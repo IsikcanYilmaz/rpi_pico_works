@@ -7,6 +7,14 @@
 #define PAINT_DEFAULT_FONT (&Font8)
 #define PAINT_SCALE_ENABLED true
 #define PAINT_OLED_SCALE 2
+#define PAINT_DEFAULT_COLOR (WHITE)
+
+typedef enum PaintColor_e_
+{
+	BLACK,
+	WHITE,
+	COLOR_MAX
+} PaintColor_e;
 
 typedef struct PaintContext_e_
 {
@@ -15,15 +23,9 @@ typedef struct PaintContext_e_
 	uint16_t height;
 	uint16_t widthByte;
 	uint16_t heightByte;
+	PaintColor_e color;
 	sFONT *font;
 } PaintContext_e;
-
-typedef enum PaintColor_e_
-{
-	BLACK,
-	WHITE,
-	COLOR_MAX
-} PaintColor_e;
 
 // Basic
 void Paint_Init(uint8_t *buf, uint16_t w, uint16_t h);

@@ -198,3 +198,28 @@ void Misc_PrintPrograms(void)
 		printf("%d: %s %c\n", i, miscPrograms[i].name, (i == currentProgramIdx) ? '*' : ' ');
 	}
 }
+
+uint16_t Misc_GetNumPrograms(void)
+{
+	return sizeof(miscPrograms)/sizeof(miscPrograms[0]);
+}
+
+MiscProgram_t* Misc_GetProgramPtrByIdx(MiscIdx_e i)
+{
+	if (i >= MISC_MAX)
+	{
+		printf("Bad idx for get program by id %d\n", i);
+		return NULL;
+	}
+	return &miscPrograms[i];
+}
+
+bool Misc_IsProgramRunning(void)
+{
+	return (currentProgramIdx < MISC_MAX);
+}
+
+MiscIdx_e Misc_GetCurrentRunningProgramIdx(void)
+{
+	return currentProgramIdx;
+}
