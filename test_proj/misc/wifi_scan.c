@@ -1,5 +1,7 @@
 #include "wifi_scan.h"
 #include "oled_manager.h"
+#include "pico/stdlib.h"
+#include "hardware/timer.h"
 
 WifiScanContext_s wifiScanContext;
 
@@ -70,6 +72,7 @@ bool WifiScan_Init(void *arg)
 	wifiScanContext.cursor = 0;
 	wifiScanContext.ssidSelectionIdx = WIFI_SCAN_NO_SSID_SELECTED;
 	Wifi_Scan();
+	wifiScanContext.tsSinceLastScan = get_absolute_time();
 }
 
 void WifiScan_Deinit(void)
@@ -78,6 +81,11 @@ void WifiScan_Deinit(void)
 
 void WifiScan_Update(void)
 {
+	if ((get_absolute_time() - wifiScanContext.tsSinceLastScan)/1000 >= WIFI_SCAN_PERIOD_MS)
+	{
+		Wifi_Scan();
+		wifiScanContext.tsSinceLastScan = get_absolute_time();
+	}
 }
 
 void WifiScan_Draw(void)

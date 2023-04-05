@@ -9,12 +9,14 @@
 #include "pico/cyw43_arch.h"
 
 #define WIFI_SCAN_NO_SSID_SELECTED 0xffff
+#define WIFI_SCAN_PERIOD_MS 10000
 
 typedef struct WifiScanContext_s_
 {
 	struct repeating_timer wifiScanUpdateTimer;
 	uint16_t cursor;
 	uint16_t ssidSelectionIdx;
+	uint64_t tsSinceLastScan;
 } WifiScanContext_s;
 
 #define WIFI_SCAN_UPDATE_PERIOD_MS 20
