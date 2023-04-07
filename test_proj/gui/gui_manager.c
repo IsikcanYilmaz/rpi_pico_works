@@ -3,7 +3,7 @@
 #include "misc_manager.h"
 #include "button.h"
 #include "gui_manager.h"
-#include "pointed_list.h"
+#include "test_functionality.h"
 
 GuiManContext_t guiManContext;
 
@@ -14,6 +14,20 @@ static bool GuiMan_UpdateTimerCallback(struct repeating_timer_t *t)
 	return true;
 }
 
+static void GuiMan_ProgramSelectedCallback(uint16_t selectedItemIdx)
+{
+	printf("Program list selected item:%d\n", selectedItemIdx);
+	if (selectedItemIdx < Misc_GetNumPrograms())
+	{
+		GuiMan_Stop();
+		Misc_StartProgram(selectedItemIdx, NULL);
+	}
+	else
+	{
+		printf("Program list returned bad value %d\n", selectedItemIdx);
+	}
+}
+
 void GuiMan_Init(void)
 {
 	guiManContext = (GuiManContext_t) {
@@ -21,6 +35,15 @@ void GuiMan_Init(void)
 									};
 		
 	guiManContext.programSelectionIdx = 0;
+	char *programNames[Misc_GetNumPrograms()];
+	for (uint16_t i; i < Misc_GetNumPrograms(); i++)
+	{
+		programNames[i] = Misc_GetProgramPtrByIdx(i)->name;
+	}
+	guiManContext.programListBox = GuiList_Create(programNames, Misc_GetNumPrograms(), GuiMan_ProgramSelectedCallback, NULL);
+	guiManContext.programListBox;
+	guiManContext.programListBox.inFocus = true;
+	guiManContext.inFocus = true;
 	GuiMan_Start();
 }
 
@@ -32,47 +55,21 @@ void GuiMan_Update(void)
 void GuiMan_Draw(void)
 {
 	OledMan_ClearBuf();
-	uint8_t x, y, rectW, rectH;
-	rectW = 117;
-	rectH = GUI_CHAR_PIX_H;
-	for (uint16_t i = 0; i < Misc_GetNumPrograms(); i++)
-	{
-		x = 10;
-		y = i * GUI_CHAR_PIX_H;
-		char *name = ((MiscProgram_t *) Misc_GetProgramPtrByIdx(i))->name;
-		OledMan_SetColor(WHITE);
-		if (i == guiManContext.programSelectionIdx)
-		{
-			// draw full rect white
-			// draw string black
-			OledMan_SetColor(WHITE);
-			OledMan_DrawRectangle(x, y, rectW, rectH, 1);
-			OledMan_SetColor(BLACK);
-			OledMan_DrawString(x, y + 2, name);
-			OledMan_SetColor(WHITE);
-			OledMan_DrawRectangle(5, y + 4, 2, 2, 1);
-		}
-		else
-		{
-			// draw full rect black 
-			// draw string white 
-			OledMan_DrawRectangle(x, y, rectW, rectH, 0);
-			OledMan_SetColor(WHITE);
-			OledMan_DrawString(x, y + 2, name);
-		}
-	}
+	GuiList_Draw(&(guiManContext.programListBox));
 }
 
 void GuiMan_Start(void)
 {
 	GuiMan_StartPollTimer();
 	guiManContext.running = true;
+	guiManContext.inFocus = true;
 }
 
 void GuiMan_Stop(void)
 {
 	GuiMan_StopPollTimer();
 	guiManContext.running = false;
+	guiManContext.inFocus = false;
 }
 
 void GuiMan_StartPollTimer(void)
@@ -85,8 +82,45 @@ void GuiMan_StopPollTimer(void)
 	cancel_repeating_timer(&(guiManContext.guiManUpdateTimer));
 }
 
+GuiItemActions_e GuiMan_ButtonInputToGuiAction(Button_e b, ButtonGesture_e g)
+{
+	GuiItemActions_e guiAction = GUI_ITEM_ACTION_MAX;
+	// map the button gesture to a gui item action and pass it on
+	if (b == BUTTON_0 && g == GESTURE_SINGLE_TAP)
+	{
+		guiAction = GUI_ITEM_ACTION_UP;
+	}
+	else if (b == BUTTON_1 && g == GESTURE_SINGLE_TAP)
+	{
+		guiAction = GUI_ITEM_ACTION_DOWN;
+	}
+	else if (b == BUTTON_0 && g == GESTURE_DOUBLE_TAP)
+	{
+		guiAction = GUI_ITEM_ACTION_EXIT;
+	}
+	else if (b == BUTTON_1 && g == GESTURE_DOUBLE_TAP)
+	{
+		guiAction = GUI_ITEM_ACTION_SELECT;
+	}
+	return guiAction;
+}
+
 void GuiMan_TakeButtonInput(Button_e b, ButtonGesture_e g)
 {
+	if (g == GESTURE_SINGLE_TAP && b == BUTTON_BOTH)
+	{
+		softwareReset(true);
+		return;
+	}
+
+	// If the gui is on, process button action and pass it
+	if (guiManContext.inFocus)
+	{
+		GuiItemActions_e guiAction = GuiMan_ButtonInputToGuiAction(b, g);
+		GuiList_TakeActionInput(&guiManContext.programListBox, guiAction);
+		return;
+	}
+
 	// TODO. lookin ugly.  
 	if ((g == GESTURE_VLONG_PRESS || g == GESTURE_VVLONG_PRESS) && Misc_IsProgramRunning())
 	{
