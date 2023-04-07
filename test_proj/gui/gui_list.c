@@ -30,7 +30,8 @@ GuiList_t GuiList_Create(char **strings, uint16_t numItems, void (*itemSelectedC
 	l.itemSelectedCallback = itemSelectedCallback;
 	l.exitedCallback = exitedCallback;
 	l.drawIndexBegin = 0;
-	l.drawIndexEnd = (l.numItems < GUI_LIST_MAX_VISIBLE_ITEMS) ? l.numItems - 1 : GUI_LIST_MAX_VISIBLE_ITEMS;
+	l.drawIndexEnd = 0;
+	GuiList_CalculateRenderItems(&l);
 	memcpy(&l.strings, strings, sizeof(char *) * numItems);
 	return l;
 }
@@ -47,8 +48,6 @@ void GuiList_Draw(GuiList_t *l)
 {
 	// First find which index range we should draw
 	uint8_t cursor = l->cursor;
-	// uint8_t drawIndexBegin = ((cursor < GUI_LIST_MAX_VISIBLE_ITEMS - 1) ? 0 : cursor - (GUI_LIST_MAX_VISIBLE_ITEMS - 1));
-	// uint8_t drawIndexEnd = drawIndexBegin + GUI_LIST_MAX_VISIBLE_ITEMS;
 	uint8_t x, y, rectW, rectH;
 	rectW = 117;
 	rectH = GUI_LIST_CHAR_PIX_H;
@@ -56,34 +55,6 @@ void GuiList_Draw(GuiList_t *l)
 	printf("LIST C:%d, BEGIN:%d, END %d\n", cursor, l->drawIndexBegin, l->drawIndexEnd);
 	
 	// Draw our items
-	// for (uint8_t i = 0; i <= (l->numItems < GUI_LIST_MAX_VISIBLE_ITEMS ? l->numItems-1 : GUI_LIST_MAX_VISIBLE_ITEMS); i++)
-	// {
-	// 	uint8_t itemIdx = drawIndexBegin + i;
-	// 	x = GUI_LIST_STRING_BEGIN_X;
-	// 	y = i * GUI_LIST_CHAR_PIX_H;
-	// 	char *name = l->strings[i];
-	// 	// printf("%s | num%d\n", name);
-	// 	OledMan_SetColor(WHITE);
-	// 	if (cursor == itemIdx)
-	// 	{
-	// 		// draw full rect white
-	// 		// draw string black
-	// 		OledMan_SetColor(WHITE);
-	// 		OledMan_DrawRectangle(x, y, rectW, rectH, 1);
-	// 		OledMan_SetColor(BLACK);
-	// 		OledMan_DrawString(x, y + 2, name);
-	// 		OledMan_SetColor(WHITE);
-	// 		OledMan_DrawRectangle(5, y + 4, 2, 2, 1);
-	// 	}
-	// 	else
-	// 	{
-	// 		// draw full rect black 
-	// 		// draw string white 
-	// 		OledMan_DrawRectangle(x, y, rectW, rectH, 0);
-	// 		OledMan_SetColor(WHITE);
-	// 		OledMan_DrawString(x, y + 2, name);
-	// 	}
-	// }
 	for (uint8_t currDrawnIdx = 0; currDrawnIdx < GUI_LIST_MAX_VISIBLE_ITEMS; currDrawnIdx++)
 	{
 		uint8_t itemAbsoluteIdx = currDrawnIdx + l->drawIndexBegin;
