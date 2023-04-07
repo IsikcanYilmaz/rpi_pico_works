@@ -17,6 +17,8 @@ typedef struct GuiList_t_
 	uint8_t itemBoxHeight;
 	uint8_t itemBoxWidth;
 	uint16_t numItems;
+	uint16_t drawIndexBegin;
+	uint16_t drawIndexEnd;
 	char* strings[GUI_LIST_MAX_ITEMS]; // TODO inefficient, see if we have malloc
 	void (*itemSelectedCallback)(uint16_t selectedItemIdx);
 	void (*exitedCallback)(void);

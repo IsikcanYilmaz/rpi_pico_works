@@ -5,7 +5,7 @@
 #include "gui_item_interface.h"
 #include "gui_list.h"
 
-#define GUI_MAN_POLL_PERIOD_MS 20
+#define GUI_MAN_POLL_PERIOD_MS 1000//20
 
 #define GUI_CHAR_PIX_W 5
 #define GUI_CHAR_PIX_H 10

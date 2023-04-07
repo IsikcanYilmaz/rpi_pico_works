@@ -35,12 +35,17 @@ void GuiMan_Init(void)
 									};
 		
 	guiManContext.programSelectionIdx = 0;
-	char *programNames[Misc_GetNumPrograms()];
-	for (uint16_t i; i < Misc_GetNumPrograms(); i++)
+	char *programNames[Misc_GetNumPrograms() + 10];
+	// for (uint16_t i; i < Misc_GetNumPrograms(); i++)
+	// {
+	// 	programNames[i] = Misc_GetProgramPtrByIdx(i)->name;
+	// }
+	for (int i = 0; i < Misc_GetNumPrograms() + 10; i++)
 	{
-		programNames[i] = Misc_GetProgramPtrByIdx(i)->name;
+		programNames[i] = ((i < Misc_GetNumPrograms()) ? Misc_GetProgramPtrByIdx(i)->name : ((i % 2) ? "ASD" : "QWE"));
 	}
-	guiManContext.programListBox = GuiList_Create(programNames, Misc_GetNumPrograms(), GuiMan_ProgramSelectedCallback, NULL);
+
+	guiManContext.programListBox = GuiList_Create(programNames, Misc_GetNumPrograms() + 10 /* Misc_GetNumPrograms() */, GuiMan_ProgramSelectedCallback, NULL);
 	guiManContext.programListBox;
 	guiManContext.programListBox.inFocus = true;
 	guiManContext.inFocus = true;
@@ -49,7 +54,7 @@ void GuiMan_Init(void)
 
 void GuiMan_Update(void)
 {
-	
+	GuiList_Update(&guiManContext.programListBox);
 }
 
 void GuiMan_Draw(void)

@@ -2,6 +2,25 @@
 #include "oled_manager.h"
 #include <string.h>
 
+static void GuiList_CalculateRenderItems(GuiList_t *l)
+{
+	if (l->numItems <= GUI_LIST_MAX_VISIBLE_ITEMS)
+	{
+		return;
+	}
+
+	if (l->cursor > l->drawIndexEnd)
+	{
+		l->drawIndexEnd = l->cursor;
+		l->drawIndexBegin = l->cursor - (GUI_LIST_MAX_VISIBLE_ITEMS-1);
+	}
+	if (l->cursor < l->drawIndexBegin)
+	{
+		l->drawIndexBegin = l->cursor;
+		l->drawIndexEnd = l->cursor + (GUI_LIST_MAX_VISIBLE_ITEMS-1);
+	}
+}
+
 GuiList_t GuiList_Create(char **strings, uint16_t numItems, void (*itemSelectedCallback)(uint16_t), void (*exitedCallback)(void))
 {
 	GuiList_t l;
@@ -10,35 +29,73 @@ GuiList_t GuiList_Create(char **strings, uint16_t numItems, void (*itemSelectedC
 	l.numItems = numItems;
 	l.itemSelectedCallback = itemSelectedCallback;
 	l.exitedCallback = exitedCallback;
+	l.drawIndexBegin = 0;
+	l.drawIndexEnd = (l.numItems < GUI_LIST_MAX_VISIBLE_ITEMS) ? l.numItems - 1 : GUI_LIST_MAX_VISIBLE_ITEMS;
 	memcpy(&l.strings, strings, sizeof(char *) * numItems);
 	return l;
 }
 
 void GuiList_Update(GuiList_t *l)
 {
-	//
+	if (!l->inFocus)
+	{
+		return;
+	}
 }
 
 void GuiList_Draw(GuiList_t *l)
 {
 	// First find which index range we should draw
 	uint8_t cursor = l->cursor;
-	uint8_t drawIndexBegin = ((cursor < GUI_LIST_MAX_VISIBLE_ITEMS - 1) ? 0 : cursor - GUI_LIST_MAX_VISIBLE_ITEMS - 1);
-	uint8_t drawIndexEnd = drawIndexBegin + GUI_LIST_MAX_VISIBLE_ITEMS;
+	// uint8_t drawIndexBegin = ((cursor < GUI_LIST_MAX_VISIBLE_ITEMS - 1) ? 0 : cursor - (GUI_LIST_MAX_VISIBLE_ITEMS - 1));
+	// uint8_t drawIndexEnd = drawIndexBegin + GUI_LIST_MAX_VISIBLE_ITEMS;
 	uint8_t x, y, rectW, rectH;
 	rectW = 117;
 	rectH = GUI_LIST_CHAR_PIX_H;
+
+	printf("LIST C:%d, BEGIN:%d, END %d\n", cursor, l->drawIndexBegin, l->drawIndexEnd);
 	
 	// Draw our items
-	for (uint8_t i = 0; i <= (l->numItems <= GUI_LIST_MAX_VISIBLE_ITEMS ? l->numItems-1 : GUI_LIST_MAX_VISIBLE_ITEMS); i++)
+	// for (uint8_t i = 0; i <= (l->numItems < GUI_LIST_MAX_VISIBLE_ITEMS ? l->numItems-1 : GUI_LIST_MAX_VISIBLE_ITEMS); i++)
+	// {
+	// 	uint8_t itemIdx = drawIndexBegin + i;
+	// 	x = GUI_LIST_STRING_BEGIN_X;
+	// 	y = i * GUI_LIST_CHAR_PIX_H;
+	// 	char *name = l->strings[i];
+	// 	// printf("%s | num%d\n", name);
+	// 	OledMan_SetColor(WHITE);
+	// 	if (cursor == itemIdx)
+	// 	{
+	// 		// draw full rect white
+	// 		// draw string black
+	// 		OledMan_SetColor(WHITE);
+	// 		OledMan_DrawRectangle(x, y, rectW, rectH, 1);
+	// 		OledMan_SetColor(BLACK);
+	// 		OledMan_DrawString(x, y + 2, name);
+	// 		OledMan_SetColor(WHITE);
+	// 		OledMan_DrawRectangle(5, y + 4, 2, 2, 1);
+	// 	}
+	// 	else
+	// 	{
+	// 		// draw full rect black 
+	// 		// draw string white 
+	// 		OledMan_DrawRectangle(x, y, rectW, rectH, 0);
+	// 		OledMan_SetColor(WHITE);
+	// 		OledMan_DrawString(x, y + 2, name);
+	// 	}
+	// }
+	for (uint8_t currDrawnIdx = 0; currDrawnIdx < GUI_LIST_MAX_VISIBLE_ITEMS; currDrawnIdx++)
 	{
-		uint8_t itemIdx = drawIndexBegin + i;
+		uint8_t itemAbsoluteIdx = currDrawnIdx + l->drawIndexBegin;
+		if (itemAbsoluteIdx >= l->numItems)
+		{
+			break;
+		}
 		x = GUI_LIST_STRING_BEGIN_X;
-		y = i * GUI_LIST_CHAR_PIX_H;
-		char *name = l->strings[i];
-		// printf("%s | num%d\n", name);
+		y = currDrawnIdx * GUI_LIST_CHAR_PIX_H;
+		char *name = l->strings[itemAbsoluteIdx];
 		OledMan_SetColor(WHITE);
-		if (cursor == itemIdx)
+		if (cursor == itemAbsoluteIdx)
 		{
 			// draw full rect white
 			// draw string black
@@ -74,6 +131,7 @@ void GuiList_TakeActionInput(GuiList_t *l, GuiItemActions_e a)
 				{
 					l->cursor = l->numItems-1;
 				}
+				GuiList_CalculateRenderItems(l);
 				break;
 			}
 		case GUI_ITEM_ACTION_DOWN:
@@ -86,6 +144,7 @@ void GuiList_TakeActionInput(GuiList_t *l, GuiItemActions_e a)
 				{
 					l->cursor++;
 				}
+				GuiList_CalculateRenderItems(l);
 				break;
 			}
 		case GUI_ITEM_ACTION_SELECT:
