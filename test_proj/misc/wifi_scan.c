@@ -8,19 +8,7 @@ WifiScanContext_s wifiScanContext;
 static void WifiScan_PopulateWifiInfoString(cyw43_ev_scan_result_t *result)
 {
 	// Setup
-	// char *ssidStr = &wifiScanContext.wifiInfoStringBuf[WIFI_SCAN_INFO_SSID_IDX];
-	// char *rssiStr = &wifiScanContext.wifiInfoStringBuf[WIFI_SCAN_INFO_RSSI_IDX]; 
-	// char *chanStr = &wifiScanContext.wifiInfoStringBuf[WIFI_SCAN_INFO_CHAN_IDX];
-	// char *macStr = &wifiScanContext.wifiInfoStringBuf[WIFI_SCAN_INFO_MAC_IDX];
-	// char *authStr = &wifiScanContext.wifiInfoStringBuf[WIFI_SCAN_INFO_AUTH_IDX];
-	//
-	// snprintf(ssidStr, WIFI_SCAN_INFO_SSID_LEN, "ssid: %s", result->ssid);
-	// snprintf(rssiStr, WIFI_SCAN_INFO_RSSI_LEN, "rssi: %4d", result->rssi);
-	// snprintf(chanStr, WIFI_SCAN_INFO_CHAN_LEN, "chan: %3d", result->channel);
-	// snprintf(macStr, WIFI_SCAN_INFO_MAC_LEN, "mac: %02x:%02x:%02x:%02x:%02x:%02x", result->bssid[0], result->bssid[1], result->bssid[2], result->bssid[3], result->bssid[4], result->bssid[5]);
-	// snprintf(authStr, WIFI_SCAN_INFO_AUTH_LEN, "auth: 0x%x", result->auth_mode);
-
-	snprintf(wifiScanContext.wifiInfoStringBuf, WIFI_SCAN_INFO_STR_LEN, "ssid: %s \nrssi: %4d \nchan: %3d \nmac: %02x:%02x:%02x:%02x:%02x:%02x \nauth: 0x%x\n", result->ssid, result->rssi, result->channel, result->bssid[0], result->bssid[1], result->bssid[2], result->bssid[3], result->bssid[4], result->bssid[5], result->auth_mode);
+	snprintf(wifiScanContext.wifiInfoStringBuf, WIFI_SCAN_INFO_STR_LEN, "ssid: %s\nrssi: %4d\nchan: %3d\nmac: %02x:%02x:%02x:%02x:%02x:%02x\nauth: 0x%x\n", result->ssid, result->rssi, result->channel, result->bssid[0], result->bssid[1], result->bssid[2], result->bssid[3], result->bssid[4], result->bssid[5], result->auth_mode);
 }
 
 static void WifiScan_GuiListItemSelectedCallback(uint16_t i)
@@ -76,11 +64,11 @@ void WifiScan_Deinit(void)
 
 void WifiScan_Update(void)
 {
-	if ((get_absolute_time() - wifiScanContext.tsSinceLastScan)/1000 >= WIFI_SCAN_PERIOD_MS)
-	{
-		Wifi_Scan();
-		wifiScanContext.tsSinceLastScan = get_absolute_time();
-	}
+	// if ((get_absolute_time() - wifiScanContext.tsSinceLastScan)/1000 >= WIFI_SCAN_PERIOD_MS)
+	// {
+	// 	Wifi_Scan();
+	// 	wifiScanContext.tsSinceLastScan = get_absolute_time();
+	// }
 	
 	if (wifiScanContext.knownNumScanRecords != Wifi_GetNumScanRecords())
 	{
@@ -119,6 +107,12 @@ void WifiScan_Stop(void)
 
 void WifiScan_ButtonInput(Button_e b, ButtonGesture_e g)
 {
+	if (b == BUTTON_1 && g == GESTURE_LONG_PRESS)
+	{
+		WifiScan_Init(NULL);
+		return;
+	}
+
 	GuiItemActions_e guiItemAction = GuiMan_ButtonInputToGuiAction(b, g);
 	if (wifiScanContext.wifiListbox.inFocus) // TODO bad lookin
 	{
@@ -128,36 +122,4 @@ void WifiScan_ButtonInput(Button_e b, ButtonGesture_e g)
 	{
 		GuiTextbox_TakeActionInput(&(wifiScanContext.wifiInfoTextbox), guiItemAction);
 	}
-
-	// if (g == GESTURE_SINGLE_TAP)
-	// {
-	// 	if (b == BUTTON_0)
-	// 	{
-	// 		wifiScanContext.cursor -= 1;
-	// 		if (wifiScanContext.cursor >= Wifi_GetNumScanRecords())
-	// 		{
-	// 			wifiScanContext.cursor = Wifi_GetNumScanRecords() - 1;
-	// 		}
-	// 	}
-	// 	else if (b == BUTTON_1)
-	// 	{
-	// 		wifiScanContext.cursor += 1;
-	// 		if (wifiScanContext.cursor >= Wifi_GetNumScanRecords())
-	// 		{
-	// 			wifiScanContext.cursor = 0;
-	// 		}
-	// 	}
-	// }
-	// 
-	// if (g == GESTURE_DOUBLE_TAP)
-	// {
-	// 	if (b == BUTTON_0 && wifiScanContext.ssidSelectionIdx != WIFI_SCAN_NO_SSID_SELECTED)
-	// 	{
-	// 		wifiScanContext.ssidSelectionIdx = WIFI_SCAN_NO_SSID_SELECTED;
-	// 	}
-	// 	else if (b == BUTTON_1 && wifiScanContext.ssidSelectionIdx == WIFI_SCAN_NO_SSID_SELECTED)
-	// 	{
-	// 		wifiScanContext.ssidSelectionIdx = wifiScanContext.cursor;
-	// 	}
-	// }
 }

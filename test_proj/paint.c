@@ -262,13 +262,13 @@ void Paint_DrawString(uint16_t x, uint16_t y, char *str)
 		else
 		{
 			Paint_DrawChar(Xpoint, Ypoint, *str);
+			
+			//The next word of the abscissa increases the font of the broadband
+			Xpoint += paintContext.font->Width;
 		}
 
 		//The next character of the address
 		str++;
-
-		//The next word of the abscissa increases the font of the broadband
-		Xpoint += paintContext.font->Width;
 	}
 }
 

@@ -75,7 +75,7 @@ static bool Wifi_RecordScanResult(cyw43_ev_scan_result_t *result)
 
 static int Wifi_ScanResult(void *env, const cyw43_ev_scan_result_t *result) {
 	if (result) {
-		Wifi_PrintScanResult(result);
+		// Wifi_PrintScanResult(result);
 		Wifi_RecordScanResult(result);
 	}
 	return 0;
