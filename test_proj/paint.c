@@ -245,14 +245,24 @@ void Paint_DrawString(uint16_t x, uint16_t y, char *str)
 		if ((Xpoint + paintContext.font->Width ) > paintContext.width ) {
 			Xpoint = x;
 			Ypoint += paintContext.font->Height;
-		}
+		}	
 
 		// If the Y direction is full, reposition to(Xstart, Ystart)
 		if ((Ypoint  + paintContext.font->Height ) > paintContext.height ) {
 			Xpoint = x;
 			Ypoint = y;
 		}
-		Paint_DrawChar(Xpoint, Ypoint, *str);
+		
+		//do this also if the char is a newline
+		if (*str == '\n')
+		{
+			Xpoint = x;
+			Ypoint += paintContext.font->Height;
+		}
+		else
+		{
+			Paint_DrawChar(Xpoint, Ypoint, *str);
+		}
 
 		//The next character of the address
 		str++;
