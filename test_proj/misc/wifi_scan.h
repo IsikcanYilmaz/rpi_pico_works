@@ -7,6 +7,8 @@
 #include "button.h"
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
+#include "gui_manager.h"
+#include "gui_list.h"
 
 #define WIFI_SCAN_NO_SSID_SELECTED 0xffff
 #define WIFI_SCAN_PERIOD_MS 10000
@@ -17,6 +19,8 @@ typedef struct WifiScanContext_s_
 	uint16_t cursor;
 	uint16_t ssidSelectionIdx;
 	uint64_t tsSinceLastScan;
+	GuiList_t wifiListBox;
+	uint16_t knownNumScanRecords;
 } WifiScanContext_s;
 
 #define WIFI_SCAN_UPDATE_PERIOD_MS 20

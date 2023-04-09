@@ -59,6 +59,7 @@ static bool Wifi_RecordScanResult(cyw43_ev_scan_result_t *result)
 		if (Wifi_CompareMac(&(result->bssid), &(wifiContext.scanBuf[i].bssid))) // we saw this before
 		{
 			wifiContext.scanBuf[i] = *result;	
+			wifiContext.ssidStrings[i] = wifiContext.scanBuf[i].ssid;
 			return true;
 		}
 	}
@@ -68,6 +69,7 @@ static bool Wifi_RecordScanResult(cyw43_ev_scan_result_t *result)
 		return false;
 	}
 	wifiContext.scanBuf[wifiContext.scanNumDevices] = *result;
+	wifiContext.ssidStrings[wifiContext.scanNumDevices] = wifiContext.scanBuf[wifiContext.scanNumDevices].ssid;
 	wifiContext.scanNumDevices++;
 }
 
@@ -97,6 +99,7 @@ void Wifi_Init(void)
 void Wifi_ClearScanBuf(void)
 {
 	memset(&wifiContext.scanBuf, 0x00, sizeof(cyw43_ev_scan_result_t) * WIFI_SCAN_BUF_LEN);
+	memset(&wifiContext.ssidStrings, 0x00, sizeof(char *));
 	wifiContext.scanNumDevices = 0;
 }
 
@@ -161,4 +164,9 @@ cyw43_ev_scan_result_t* Wifi_GetScanRecordByIdx(uint16_t idx)
 		return NULL;
 	}
 	return &(wifiContext.scanBuf[idx]);
+}
+
+char** Wifi_GetStringsList(void)
+{
+	return wifiContext.ssidStrings;
 }

@@ -32,8 +32,35 @@ GuiList_t GuiList_Create(char **strings, uint16_t numItems, void (*itemSelectedC
 	l.drawIndexBegin = 0;
 	l.drawIndexEnd = 0;
 	GuiList_CalculateRenderItems(&l);
-	memcpy(&l.strings, strings, sizeof(char *) * numItems);
+	GuiList_SetStrings(&l, strings, numItems);
 	return l;
+}
+
+void GuiList_SetStrings(GuiList_t *l, char **strings, uint16_t numItems)
+{
+	if (numItems == 0)
+	{
+		return;
+	}
+
+	memcpy(l->strings, strings, sizeof(char *) * numItems);
+	if (numItems-1 < l->cursor)
+	{
+		l->cursor = numItems-1;
+	}
+	l->numItems = numItems;
+}
+
+void GuiList_SetCursor(GuiList_t *l, uint16_t c)
+{
+	if (c < l->numItems)
+	{
+		l->cursor = c;
+	}
+	else
+	{
+		printf("Guilist setcursor bad val! %d\n", c);
+	}
 }
 
 void GuiList_Update(GuiList_t *l)
@@ -52,7 +79,13 @@ void GuiList_Draw(GuiList_t *l)
 	rectW = 117;
 	rectH = GUI_LIST_CHAR_PIX_H;
 
-	printf("LIST C:%d, BEGIN:%d, END %d\n", cursor, l->drawIndexBegin, l->drawIndexEnd);
+	if (l->numItems == 0)
+	{
+		OledMan_DrawRectangle(GUI_LIST_STRING_BEGIN_X, GUI_LIST_CHAR_PIX_H, rectW, rectH, 0);	
+		return;
+	}
+
+	// printf("LIST C:%d, BEGIN:%d, END %d\n", cursor, l->drawIndexBegin, l->drawIndexEnd);
 	
 	// Draw our items
 	for (uint8_t currDrawnIdx = 0; currDrawnIdx < GUI_LIST_MAX_VISIBLE_ITEMS; currDrawnIdx++)

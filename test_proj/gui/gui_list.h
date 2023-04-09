@@ -28,4 +28,6 @@ GuiList_t GuiList_Create(char **strings, uint16_t numItems, void (*itemSelectedC
 void GuiList_Update(GuiList_t *l);
 void GuiList_Draw(GuiList_t *l);
 void GuiList_TakeActionInput(GuiList_t *l, GuiItemActions_e a);
+void GuiList_SetStrings(GuiList_t *l, char **strings, uint16_t numItems);
+void GuiList_SetCursor(GuiList_t *l, uint16_t c);
 #endif

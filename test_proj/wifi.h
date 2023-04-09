@@ -15,6 +15,7 @@ typedef struct WifiContext_s
 	bool isConnected;
 	char *ssid;
 	cyw43_ev_scan_result_t scanBuf[WIFI_SCAN_BUF_LEN];
+	char *ssidStrings[WIFI_SCAN_BUF_LEN]; // for gui
 	uint16_t scanNumDevices;
 } WifiContext_t;
 
@@ -27,4 +28,5 @@ void Wifi_PrintRecords(void);
 void Wifi_ClearScanBuf(void);
 uint16_t Wifi_GetNumScanRecords(void);
 cyw43_ev_scan_result_t* Wifi_GetScanRecordByIdx(uint16_t idx);
+char** Wifi_GetStringsList(void);
 #endif

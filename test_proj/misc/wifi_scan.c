@@ -7,41 +7,8 @@ WifiScanContext_s wifiScanContext;
 
 static void WifiScan_DrawScanList(void)
 {
-	uint8_t x, y, rectW, rectH;
-	rectW = 117;
-	rectH = 10;
-	for (uint16_t i = 0; i < Wifi_GetNumScanRecords(); i++)
-	{
-		x = 10;
-		y = i * 10;
-		cyw43_ev_scan_result_t *scanRecord = Wifi_GetScanRecordByIdx(i);
-		if (scanRecord == NULL)
-		{
-			printf("Problem with wifi scan record %d\n", i);
-			continue;
-		}
-		char *name = scanRecord->ssid;
-		OledMan_SetColor(WHITE);
-		if (i == wifiScanContext.cursor)
-		{
-			// draw full rect white
-			// draw string black
-			OledMan_SetColor(WHITE);
-			OledMan_DrawRectangle(x, y, rectW, rectH, 1);
-			OledMan_SetColor(BLACK);
-			OledMan_DrawString(x, y + 2, name);
-			OledMan_SetColor(WHITE);
-			OledMan_DrawRectangle(5, y + 4, 2, 2, 1);
-		}
-		else
-		{
-			// draw full rect black 
-			// draw string white 
-			OledMan_DrawRectangle(x, y, rectW, rectH, 0);
-			OledMan_SetColor(WHITE);
-			OledMan_DrawString(x, y + 2, name);
-		}
-	}
+	OledMan_ClearBuf();
+	GuiList_Draw(&(wifiScanContext.wifiListBox));
 }
 
 static void WifiScan_DrawScanRecordInfo(cyw43_ev_scan_result_t *result)
@@ -67,12 +34,25 @@ static void WifiScan_DrawScanRecordInfo(cyw43_ev_scan_result_t *result)
 	OledMan_DrawString(1, 55, authStr);
 }
 
+static void WifiScan_GuiListItemSelectedCallback(uint16_t i)
+{
+	printf("Wifi scan selected idx %d\n", i);
+}
+
+static void WifiScan_GuiListExitedCallback(void)
+{
+	//
+}
+
 bool WifiScan_Init(void *arg)
 {
 	wifiScanContext.cursor = 0;
 	wifiScanContext.ssidSelectionIdx = WIFI_SCAN_NO_SSID_SELECTED;
 	Wifi_Scan();
 	wifiScanContext.tsSinceLastScan = get_absolute_time();
+	wifiScanContext.knownNumScanRecords = 0;
+	wifiScanContext.wifiListBox = GuiList_Create(NULL, 0, WifiScan_GuiListItemSelectedCallback, WifiScan_GuiListExitedCallback);
+	wifiScanContext.wifiListBox.inFocus = true;
 }
 
 void WifiScan_Deinit(void)
@@ -86,6 +66,12 @@ void WifiScan_Update(void)
 		Wifi_Scan();
 		wifiScanContext.tsSinceLastScan = get_absolute_time();
 	}
+	
+	if (wifiScanContext.knownNumScanRecords != Wifi_GetNumScanRecords())
+	{
+		GuiList_SetStrings(&wifiScanContext.wifiListBox, Wifi_GetStringsList(), Wifi_GetNumScanRecords());
+	}
+	wifiScanContext.knownNumScanRecords = Wifi_GetNumScanRecords();
 }
 
 void WifiScan_Draw(void)
@@ -112,35 +98,45 @@ void WifiScan_Stop(void)
 
 void WifiScan_ButtonInput(Button_e b, ButtonGesture_e g)
 {
-	if (g == GESTURE_SINGLE_TAP)
+	GuiItemActions_e guiItemAction = GuiMan_ButtonInputToGuiAction(b, g);
+	if (wifiScanContext.wifiListBox.inFocus)
 	{
-		if (b == BUTTON_0)
-		{
-			wifiScanContext.cursor -= 1;
-			if (wifiScanContext.cursor >= Wifi_GetNumScanRecords())
-			{
-				wifiScanContext.cursor = Wifi_GetNumScanRecords() - 1;
-			}
-		}
-		else if (b == BUTTON_1)
-		{
-			wifiScanContext.cursor += 1;
-			if (wifiScanContext.cursor >= Wifi_GetNumScanRecords())
-			{
-				wifiScanContext.cursor = 0;
-			}
-		}
+		GuiList_TakeActionInput(&(wifiScanContext.wifiListBox), guiItemAction);
 	}
-	
-	if (g == GESTURE_DOUBLE_TAP)
-	{
-		if (b == BUTTON_0 && wifiScanContext.ssidSelectionIdx != WIFI_SCAN_NO_SSID_SELECTED)
-		{
-			wifiScanContext.ssidSelectionIdx = WIFI_SCAN_NO_SSID_SELECTED;
-		}
-		else if (b == BUTTON_1 && wifiScanContext.ssidSelectionIdx == WIFI_SCAN_NO_SSID_SELECTED)
-		{
-			wifiScanContext.ssidSelectionIdx = wifiScanContext.cursor;
-		}
-	}
+	// else if (wifiScanContext.wifiInfoText.inFocus)
+	// {
+	//
+	// }
+
+	// if (g == GESTURE_SINGLE_TAP)
+	// {
+	// 	if (b == BUTTON_0)
+	// 	{
+	// 		wifiScanContext.cursor -= 1;
+	// 		if (wifiScanContext.cursor >= Wifi_GetNumScanRecords())
+	// 		{
+	// 			wifiScanContext.cursor = Wifi_GetNumScanRecords() - 1;
+	// 		}
+	// 	}
+	// 	else if (b == BUTTON_1)
+	// 	{
+	// 		wifiScanContext.cursor += 1;
+	// 		if (wifiScanContext.cursor >= Wifi_GetNumScanRecords())
+	// 		{
+	// 			wifiScanContext.cursor = 0;
+	// 		}
+	// 	}
+	// }
+	// 
+	// if (g == GESTURE_DOUBLE_TAP)
+	// {
+	// 	if (b == BUTTON_0 && wifiScanContext.ssidSelectionIdx != WIFI_SCAN_NO_SSID_SELECTED)
+	// 	{
+	// 		wifiScanContext.ssidSelectionIdx = WIFI_SCAN_NO_SSID_SELECTED;
+	// 	}
+	// 	else if (b == BUTTON_1 && wifiScanContext.ssidSelectionIdx == WIFI_SCAN_NO_SSID_SELECTED)
+	// 	{
+	// 		wifiScanContext.ssidSelectionIdx = wifiScanContext.cursor;
+	// 	}
+	// }
 }

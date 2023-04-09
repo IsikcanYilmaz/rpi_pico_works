@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "gui_item_interface.h"
 #include "gui_list.h"
+#include "button.h"
 
 #define GUI_MAN_POLL_PERIOD_MS 20
 
@@ -27,4 +28,5 @@ void GuiMan_Stop(void);
 void GuiMan_StartPollTimer(void);
 void GuiMan_StopPollTimer(void);
 void GuiMan_TakeButtonInput(Button_e b, ButtonGesture_e g);
+GuiItemActions_e GuiMan_ButtonInputToGuiAction(Button_e b, ButtonGesture_e g);
 #endif

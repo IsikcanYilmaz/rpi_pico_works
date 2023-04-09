@@ -32,7 +32,7 @@ void GuiMan_Init(void)
 {
 	guiManContext = (GuiManContext_t) {
 									.running = false,
-									.inFocus = false;
+									.inFocus = false,
 									};
 		
 	guiManContext.programSelectionIdx = 0;
