@@ -18,6 +18,7 @@ add_subdirectory(oled_lib/OLED)
 add_subdirectory(misc/)
 add_subdirectory(gui/)
 add_subdirectory(util/)
+add_subdirectory(inet/)
 
 # rest of your project
 add_executable(test_proj
@@ -40,13 +41,15 @@ target_include_directories(test_proj PRIVATE
 													 ./misc/
 													 ./gui/
 													 ./util/
+													 ./inet/
 													)
 
 # Add pico_stdlib library which aggregates commonly used features
 target_link_libraries(test_proj 
 											pico_stdlib
 											# pico_cyw43_arch_none
-											pico_cyw43_arch_lwip_poll
+											# pico_cyw43_arch_lwip_poll
+											pico_cyw43_arch_lwip_threadsafe_background
 											hardware_irq
 											hardware_pwm
 											hardware_spi
@@ -54,6 +57,7 @@ target_link_libraries(test_proj
 											misc
 											util
 											gui
+											# inet
 											# Below for the oled driver
 											OLED
 											# GUI
@@ -63,8 +67,11 @@ target_link_libraries(test_proj
 
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(PICO_TIME_DEFAULT_ALARM_POOL_DISABLED 1)
-set(PICO_STDIO_USB_SUPPORT_CHARS_AVAILABLE_CALLBACK 1)
+
+# add_compile_definitions(PICO_TIME_DEFAULT_ALARM_POOL_DISABLED=1)
+# add_compile_definitions(PICO_STDIO_USB_SUPPORT_CHARS_AVAILABLE_CALLBACK=1)
+add_compile_definitions(WIFI_BACKGROUND=1)
+add_compile_definitions(WIFI_POLL=0)
 
 # enable usb output, disable uart output
 pico_enable_stdio_usb(test_proj 1)
