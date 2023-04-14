@@ -12,7 +12,8 @@ target_include_directories(misc PRIVATE
 										)
 target_link_libraries(misc PRIVATE
 											pico_stdlib
-											pico_cyw43_arch_lwip_poll
+											# pico_cyw43_arch_lwip_poll
+											pico_cyw43_arch_lwip_threadsafe_background
 											hardware_irq
 											hardware_pwm
 											hardware_spi

@@ -12,7 +12,7 @@ target_include_directories(gui PRIVATE
 										)
 target_link_libraries(gui PRIVATE
 											pico_stdlib
-											pico_cyw43_arch_lwip_poll
+											# pico_cyw43_arch_lwip_poll
 											hardware_irq
 											hardware_pwm
 											hardware_spi

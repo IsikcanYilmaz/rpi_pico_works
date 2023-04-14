@@ -57,7 +57,7 @@ target_link_libraries(test_proj
 											misc
 											util
 											gui
-											# inet
+											picow_access_point_background
 											# Below for the oled driver
 											OLED
 											# GUI
@@ -70,6 +70,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # add_compile_definitions(PICO_TIME_DEFAULT_ALARM_POOL_DISABLED=1)
 # add_compile_definitions(PICO_STDIO_USB_SUPPORT_CHARS_AVAILABLE_CALLBACK=1)
+add_compile_definitions(LWIP_DEBUG=0)
 add_compile_definitions(WIFI_BACKGROUND=1)
 add_compile_definitions(WIFI_POLL=0)
 

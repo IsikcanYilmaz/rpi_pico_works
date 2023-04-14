@@ -11,13 +11,15 @@
 #include "gui_manager.h"
 #include "button.h"
 
+#include "access_point/picow_access_point.h"
+
 // OLED v
 #include "DEV_Config.h"
 
 static void Main_Init(void)
 {
 	UserInput_Init();
-	Wifi_Init();
+	// Wifi_Init();
 	OledMan_Init();
 	Button_Init();
 	GuiMan_Init();
@@ -28,11 +30,12 @@ static void Main_Init(void)
 int main() {
 	// setup_default_uart();
 	stdio_init_all();
-	if (cyw43_arch_init()) {
-		printf("Wi-Fi init failed");
-		return -1;
-	}
+	// if (cyw43_arch_init()) {
+	// 	printf("Wi-Fi init failed");
+	// 	return -1;
+	// }
 	Main_Init();
+	PicowAp_Init();
 	toggleLed();
 	while(1)
 	{

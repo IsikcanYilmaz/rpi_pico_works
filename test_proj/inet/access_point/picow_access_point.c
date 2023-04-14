@@ -337,8 +337,6 @@ ip4_addr_t mask;
 TCP_SERVER_T *state;
 bool PicowAp_Init(void)
 {
-	printf("picow %d\n", __LINE__);
-	
 	state = calloc(1, sizeof(TCP_SERVER_T));
 	if (!state) {
 		DEBUG_printf("failed to allocate state\n");
@@ -350,32 +348,22 @@ bool PicowAp_Init(void)
 			return 1;
 	}
 
-	printf("picow %d\n", __LINE__);
-	// sleep_ms(1000);
-
 	const char *ap_name = "picow_test";
 	const char *password = "password";
 	cyw43_arch_enable_ap_mode(ap_name, password, CYW43_AUTH_WPA2_AES_PSK);
-	// IP4_ADDR(ip_2_ip4(&state->gw), 192, 168, 4, 1);
-	// IP4_ADDR(ip_2_ip4(&mask), 255, 255, 255, 0);
-
-	printf("picow %d\n", __LINE__);
-	// sleep_ms(1000);
+	IP4_ADDR(ip_2_ip4(&state->gw), 192, 168, 4, 1);
+	IP4_ADDR(ip_2_ip4(&mask), 255, 255, 255, 0);
 
 	// Start the dhcp server
-	// dhcp_server_init(&dhcp_server, &state->gw, &mask);
-	printf("picow %d\n", __LINE__);
-	// sleep_ms(1000);
+	dhcp_server_init(&dhcp_server, &state->gw, &mask);
 
 	// Start the dns server
-	// dns_server_init(&dns_server, &state->gw);
-	printf("picow %d\n", __LINE__);
-	// sleep_ms(1000);
+	dns_server_init(&dns_server, &state->gw);
 
-	// if (!tcp_server_open(state)) {
-	// 	DEBUG_printf("failed to open server\n");
-	// 	return false;
-	// }
+	if (!tcp_server_open(state)) {
+		DEBUG_printf("failed to open server\n");
+		return false;
+	}
 	return true;
 }
 
