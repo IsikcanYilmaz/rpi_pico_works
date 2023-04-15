@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 set(PICO_BOARD pico_w)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # initialize the SDK based on PICO_SDK_PATH
 # note: this must happen before project()
@@ -65,8 +66,6 @@ target_link_libraries(test_proj
 											Config
 											)
 
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # add_compile_definitions(PICO_TIME_DEFAULT_ALARM_POOL_DISABLED=1)
 # add_compile_definitions(PICO_STDIO_USB_SUPPORT_CHARS_AVAILABLE_CALLBACK=1)

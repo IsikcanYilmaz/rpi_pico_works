@@ -1,3 +1,4 @@
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 aux_source_directory(. misc)
 add_library(misc ${misc})
 target_include_directories(misc PRIVATE
@@ -22,3 +23,4 @@ target_link_libraries(misc PRIVATE
 											Fonts
 											Config
 											)
+

@@ -10,6 +10,14 @@
 #define WIFI_CONNECT_TIMEOUT_MS 10000 
 #define WIFI_SCAN_BUF_LEN 50
 
+typedef enum WifiMode_e_
+{
+	WIFI_MODE_NONE,
+	WIFI_MODE_STATION,
+	WIFI_MODE_ACCESS_POINT,
+	WIFI_MODE_MAX
+} WifiMode_e;
+
 typedef struct WifiContext_s
 {
 	bool isConnected;

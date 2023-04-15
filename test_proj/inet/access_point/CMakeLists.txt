@@ -38,6 +38,7 @@
 
 # pico_add_extra_outputs(picow_access_point_poll)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 aux_source_directory(. picow_access_point_background)
 add_library(picow_access_point_background ${picow_access_point_background}
 	picow_access_point.c
@@ -54,3 +55,4 @@ target_link_libraries(picow_access_point_background PRIVATE
 				# pico_cyw43_arch_lwip_poll
         pico_stdlib
         )
+

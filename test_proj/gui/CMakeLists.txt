@@ -1,3 +1,4 @@
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 aux_source_directory(. gui)
 add_library(gui ${gui})
 target_include_directories(gui PRIVATE

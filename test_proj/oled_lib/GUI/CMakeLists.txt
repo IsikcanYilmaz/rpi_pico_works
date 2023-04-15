@@ -4,6 +4,8 @@ aux_source_directory(. DIR_GUI_SRCS)
 
 include_directories(../Config)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # 生成链接库
 add_library(GUI ${DIR_GUI_SRCS})
 target_link_libraries(GUI PUBLIC Config)
+

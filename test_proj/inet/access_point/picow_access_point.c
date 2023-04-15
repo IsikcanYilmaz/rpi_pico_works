@@ -17,7 +17,7 @@
 
 #include "picow_access_point.h"
 
-#define TCP_PORT 88
+#define TCP_PORT 80
 #define DEBUG_printf printf
 #define POLL_TIME_S 5
 #define HTTP_GET "GET"
