@@ -154,11 +154,13 @@ static void Misc_ProcessSubprogramInput(MiscIdx_e idx, uint8_t argc, char **argv
 	ASSERT_ARGS(1);
 	if (strcmp(argv[0], "start") == 0)
 	{
+		GuiMan_Stop();
 		Misc_StartProgram(idx, (argc > 1) ? argv[1] : NULL);
 	}
 	else if (strcmp(argv[0], "stop") == 0)
 	{
 		Misc_StopProgram();
+		GuiMan_Start();
 	}
 	else 
 	{

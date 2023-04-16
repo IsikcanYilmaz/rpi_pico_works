@@ -70,6 +70,7 @@ target_link_libraries(test_proj
 # add_compile_definitions(PICO_TIME_DEFAULT_ALARM_POOL_DISABLED=1)
 # add_compile_definitions(PICO_STDIO_USB_SUPPORT_CHARS_AVAILABLE_CALLBACK=1)
 add_compile_definitions(LWIP_DEBUG=0)
+add_compile_definitions(NDEBUG) # Set to disable lwip debug
 add_compile_definitions(WIFI_BACKGROUND=1)
 add_compile_definitions(WIFI_POLL=0)
 

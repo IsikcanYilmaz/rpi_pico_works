@@ -2,6 +2,7 @@
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 #include "hardware/timer.h"
+#include "access_point/picow_access_point.h"
 #include <string.h>
 
 static struct repeating_timer wifiPollTimer;
@@ -10,6 +11,41 @@ static const char *authModeStrings[] = {
 	[0] = "WEP_PSK",
 	[1] = "WPA",
 	[2] = "WPA2",
+};
+
+static const char *wifiModeStrings[] = {
+	[WIFI_MODE_STATION] = "WIFI_MODE_STATION",
+	[WIFI_MODE_ACCESS_POINT] = "WIFI_MODE_ACCESS_POINT",
+	[WIFI_MODE_NONE] = "WIFI_MODE_NONE",
+	[WIFI_MODE_MAX] = "WIFI_MODE_MAX",
+};
+
+static bool Wifi_NoneRoutineSanityInit(void *args){
+	printf("Wifi None Init Routine! This shouldnt happen!!\n");
+}
+static void Wifi_NoneRoutineSanityDeinit(void){
+	printf("Wifi None DeInit Routine! This shouldnt happen!!\n");
+}
+
+static WifiRoutine_s wifiRoutines[] = {
+	[WIFI_ROUTINE_ACCESS_POINT_EXAMPLE] = (WifiRoutine_s) { .name = "access_point_example",
+																													.init = PicowAp_Init,
+																													.deinit = PicowAp_Deinit,
+																													.running = false,
+																													.requiredMode = WIFI_MODE_ACCESS_POINT,
+																												},
+	// [WIFI_ROUTINE_TCP_RECV_TEST] = 			  (WifiRoutine_s) { "access_point_example",
+	// 																												PicowAp_Init,
+	// 																												PicowAp_Deinit,
+	// 																												false,
+	// 																												WIFI_MODE_ACCESS_POINT,
+	// 																											},
+	[WIFI_ROUTINE_NONE] = 								(WifiRoutine_s) { .name = "none",
+																													.init = Wifi_NoneRoutineSanityInit,
+																													.deinit = Wifi_NoneRoutineSanityInit,
+																													.running = false,
+																													.requiredMode = WIFI_MODE_NONE,
+																												},
 };
 
 WifiContext_t wifiContext;
@@ -86,34 +122,52 @@ static bool Wifi_Poll(struct repeating_timer *t)
 	cyw43_arch_poll();
 }
 
-
 void Wifi_Init(void)
 {
 	wifiContext.isConnected = false;
-	wifiContext.ssid = NULL;
+	wifiContext.mode = WIFI_MODE_NONE;
+	wifiContext.currentRoutineIdx = WIFI_ROUTINE_NONE;
+	wifiContext.currentRoutine = NULL;
+	memset(wifiContext.apSsid, 0x00, sizeof(WIFI_AP_SSID_MAX_LEN));
+	memset(wifiContext.apPass, 0x00, sizeof(WIFI_AP_PASS_MAX_LEN));
+	strcpy(wifiContext.apSsid, WIFI_AP_DEFAULT_SSID);
+	strcpy(wifiContext.apPass, WIFI_AP_DEFAULT_PASS);
 	Wifi_ClearScanBuf();
-	cyw43_arch_enable_sta_mode();
-	Wifi_PollTimerStart();
+	cyw43_arch_init();
+	// cyw43_arch_enable_sta_mode();
+	// Wifi_PollTimerStart();
+}
+
+void Wifi_Deinit(void)
+{
+	cyw43_arch_deinit();
 }
 
 void Wifi_ClearScanBuf(void)
 {
 	memset(&wifiContext.scanBuf, 0x00, sizeof(cyw43_ev_scan_result_t) * WIFI_SCAN_BUF_LEN);
-	memset(&wifiContext.ssidStrings, 0x00, sizeof(char *));
+	memset(&wifiContext.ssidStrings, 0x00, sizeof(char *) * WIFI_SCAN_BUF_LEN);
 	wifiContext.scanNumDevices = 0;
 }
 
-void Wifi_Scan(void)
+bool Wifi_Scan(void)
 {
+	if (wifiContext.mode != WIFI_MODE_STATION)
+	{
+		printf("Wrong mode for scanning %d:%s\n", wifiContext.mode, wifiModeStrings[wifiContext.mode]);
+		return false;
+	}
 	cyw43_wifi_scan_options_t scan_options = {0};
 	int err = cyw43_wifi_scan(&cyw43_state, &scan_options, NULL, Wifi_ScanResult);
 	if (err == 0)
 	{
 		printf("Performing wifi scan\n");
+		return true;
 	}
 	else
 	{
 		printf("Failed to start scan: %d\n", err);
+		return false;
 	}
 }
 
@@ -127,8 +181,25 @@ void Wifi_PollTimerStop(void)
 	cancel_repeating_timer(&wifiPollTimer);
 }
 
+WifiRoutine_s *Wifi_GetRoutinePtrByIdx(WifiRoutine_e r)
+{
+	if (r <= WIFI_ROUTINE_NONE) // todo this could be done better? there is a MAX and a NONE enum? 
+	{
+		return &wifiRoutines[r];
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
 bool Wifi_Connect(char *ssid, char *pass)
 {
+	if (wifiContext.mode != WIFI_MODE_STATION)
+	{
+		printf("Wrong mode for scanning %d:%s\n", wifiContext.mode, wifiModeStrings[wifiContext.mode]);
+		return false;
+	}
 	printf("Attempting to connect to AP SSID:%s\n", ssid);
 	if (cyw43_arch_wifi_connect_timeout_ms(ssid, pass, CYW43_AUTH_WPA2_AES_PSK, WIFI_CONNECT_TIMEOUT_MS)) 
 	{
@@ -140,6 +211,138 @@ bool Wifi_Connect(char *ssid, char *pass)
 		printf("Connected!\n");
 		return true;
 	}
+}
+
+bool Wifi_UnsetCurrentRoutine(void)
+{
+	return Wifi_SetRoutine(WIFI_ROUTINE_NONE, NULL);
+}
+
+bool Wifi_SetRoutine(WifiRoutine_e r, void *arg)
+{
+	bool ret = true;
+
+	// Check if arg is good
+	if (r >= WIFI_ROUTINE_MAX)
+	{
+		printf("Bad routine idx %d:%s\n", r, wifiRoutines[r].name);
+		return false;
+	}
+
+	if (r == wifiContext.currentRoutineIdx)
+	{
+		printf("Already running routine %d:%s\n", r, wifiRoutines[r].name);
+		return false;
+	}
+
+	WifiRoutine_s *targetRoutine = Wifi_GetRoutinePtrByIdx(r);
+
+	// first deinit the current routine
+	ret = wifiContext.currentRoutine->deinit();
+	cyw43_arch_deinit();
+	cyw43_arch_init();
+	wifiContext.currentRoutine = NULL;
+	wifiContext.currentRoutineIdx = WIFI_ROUTINE_NONE;
+	if (!ret)
+	{
+		printf("Couldnt deinit current routine %d:%s\n", wifiContext.currentRoutine, wifiContext.currentRoutine->name);
+		return false;
+	}
+
+	if (r == WIFI_ROUTINE_NONE)
+	{
+		return true;
+	}
+
+	// the routine we want needs a different mode. deinit the current one and init the next
+	if (wifiContext.mode != targetRoutine->requiredMode)
+	{
+		printf("Need to change wifi modes!\n");
+		// TODO
+	}
+
+	// now we can set the new mode
+	ret = Wifi_SetMode(targetRoutine->requiredMode);
+	if (!ret)
+	{
+		printf("Couldnt set mode %d\n", targetRoutine->requiredMode);
+		return false;
+	}
+
+	// now init the target routine
+	ret = targetRoutine->init(arg);
+	if (!ret)
+	{
+		printf("Couldnt init target routine %s:%d\n", targetRoutine->name, r);
+		return false;
+	}
+	wifiContext.currentRoutine = targetRoutine;
+	wifiContext.currentRoutineIdx = r;
+	return ret;
+}
+
+bool Wifi_UnsetCurrentMode(void)
+{
+	printf("Unsetting wifi mode %d:%s\n", wifiContext.mode, wifiModeStrings[wifiContext.mode]);
+	switch (wifiContext.mode)
+	{
+		case WIFI_MODE_STATION:
+		{
+			// TODO
+			break;
+		}
+		case WIFI_MODE_ACCESS_POINT:
+		{
+			// TODO
+			break;
+		}
+		default:
+		{
+			printf("Nothing to unset for current mode %d:%s\n", wifiContext.mode, wifiModeStrings[wifiContext.mode]);
+			break;
+		}
+	}
+	wifiContext.mode = WIFI_MODE_NONE;
+	return true;
+}
+
+bool Wifi_SetMode(WifiMode_e m)
+{
+	if (m >= WIFI_MODE_MAX)
+	{
+		printf("Bad wifi mode %d\n", m);
+		return false;
+	}
+	printf("Setting wifi mode %d:%s\n", m);
+	if (wifiContext.mode != WIFI_MODE_NONE)
+	{
+		Wifi_UnsetCurrentMode();
+	}
+	switch(m)
+	{
+		case WIFI_MODE_STATION:
+		{
+			cyw43_arch_enable_sta_mode();
+			break;
+		}
+		case WIFI_MODE_ACCESS_POINT:
+		{
+			printf("Pico AP SSID: %s, PASS: %s\n", wifiContext.apSsid, wifiContext.apPass);
+			cyw43_arch_enable_ap_mode(wifiContext.apSsid, wifiContext.apPass, WIFI_AP_DEFAULT_AUTH);
+			break;
+		}
+		case WIFI_MODE_NONE:
+		{
+			break;
+		}
+		default:
+		{
+			printf("Bad wifi mode set %d\n", m);
+			return false;
+		}
+	}
+	wifiContext.mode = m;
+	return true;
 }
 
 void Wifi_PrintRecords(void)

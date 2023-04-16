@@ -335,7 +335,7 @@ dns_server_t dns_server; // TODO tidy
 dhcp_server_t dhcp_server;
 ip4_addr_t mask;
 TCP_SERVER_T *state;
-bool PicowAp_Init(void)
+bool PicowAp_Init(void *arg)
 {
 	state = calloc(1, sizeof(TCP_SERVER_T));
 	if (!state) {
@@ -343,14 +343,14 @@ bool PicowAp_Init(void)
 		return false;
 	}
 
-	if (cyw43_arch_init()) {
-			DEBUG_printf("failed to initialise\n");
-			return 1;
-	}
+	// if (cyw43_arch_init()) { // This should be done by wifi manager
+	// 		DEBUG_printf("failed to initialise\n");
+	// 		return 1;
+	// }
 
-	const char *ap_name = "picow_test";
-	const char *password = "password";
-	cyw43_arch_enable_ap_mode(ap_name, password, CYW43_AUTH_WPA2_AES_PSK);
+	// const char *ap_name = "picow_test";
+	// const char *password = "password";
+	// cyw43_arch_enable_ap_mode(ap_name, password, CYW43_AUTH_WPA2_AES_PSK);
 	IP4_ADDR(ip_2_ip4(&state->gw), 192, 168, 4, 1);
 	IP4_ADDR(ip_2_ip4(&mask), 255, 255, 255, 0);
 
@@ -367,10 +367,11 @@ bool PicowAp_Init(void)
 	return true;
 }
 
-void PicowAp_Deinit(void)
+bool PicowAp_Deinit(void)
 {
 	dns_server_deinit(&dns_server);
 	dhcp_server_deinit(&dhcp_server);
+	return true;
 }
 
 void PicowAp_InfinitePollLoop(void)

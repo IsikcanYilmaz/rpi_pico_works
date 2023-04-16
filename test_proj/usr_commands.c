@@ -106,6 +106,52 @@ void UserCommand_Wifi(uint8_t argc, char **argv)
 	ASSERT_ARGS(2);
 
 	// args
+	if (strcmp(argv[1], "mode") == 0)
+	{
+		ASSERT_ARGS(3)
+		bool ret = false;
+		if (strcmp(argv[2], "none") == 0)
+		{
+			ret = Wifi_UnsetCurrentMode();
+		}
+		else if (strcmp(argv[2], "ap") == 0)
+		{
+			ret = Wifi_SetMode(WIFI_MODE_ACCESS_POINT);
+		}
+		else if (strcmp(argv[2], "sta") == 0)
+		{
+			ret = Wifi_SetMode(WIFI_MODE_STATION);
+		}
+		else
+		{
+			printf("Bad arg to \"wifi mode\". Avail modes: none, ap, sta\n");
+			BAD_ARG();
+			return;
+		}
+		printf("Set mode result: %d\n", ret);
+		return;
+	}
+	if (strcmp(argv[1], "routine") == 0)
+	{
+		ASSERT_ARGS(3)
+		bool ret = false;
+		if (strcmp(argv[2], "none") == 0)
+		{
+			ret = Wifi_UnsetCurrentRoutine();
+		}
+		else if (strcmp(argv[2], "ap_example") == 0)
+		{
+			ret = Wifi_SetRoutine(WIFI_ROUTINE_ACCESS_POINT_EXAMPLE, NULL);
+		}
+		else
+		{
+			printf("Bad arg to \"wifi routine\". Avail modes: none, ap_example\n");
+			BAD_ARG();
+			return;
+		}
+		printf("Set mode result: %d\n", ret);
+		return;
+	}
 	if (strcmp(argv[1], "scan") == 0)
 	{
 		printf("Wifi scan\n");
@@ -123,6 +169,7 @@ void UserCommand_Wifi(uint8_t argc, char **argv)
 	else
 	{
 		BAD_ARG();
+		return;
 	}
 }
 

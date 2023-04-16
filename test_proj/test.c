@@ -19,23 +19,22 @@
 static void Main_Init(void)
 {
 	UserInput_Init();
-	// Wifi_Init();
+	printf("UserInput Init\n");
 	OledMan_Init();
+	printf("OledMan Init\n");
 	Button_Init();
+	printf("Button Init\n");
 	GuiMan_Init();
-
-	// Misc_StartProgram(MISC_GAME_OF_LIFE, NULL);
+	printf("GuiMan Init\n");
+	Wifi_Init();
+	printf("Wifi Init\n");
+	printf("Init complete\n");
 }
 
 int main() {
-	// setup_default_uart();
 	stdio_init_all();
-	// if (cyw43_arch_init()) {
-	// 	printf("Wi-Fi init failed");
-	// 	return -1;
-	// }
 	Main_Init();
-	PicowAp_Init();
+	// PicowAp_Init();
 	toggleLed();
 	while(1)
 	{
