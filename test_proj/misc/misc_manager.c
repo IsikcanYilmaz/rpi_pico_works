@@ -4,12 +4,14 @@
 #include "screen_saver.h"
 #include "game_of_life.h"
 #include "wifi_scan.h"
+#include "picture.h"
 #include "usr_commands.h"
 #include <stdio.h>
 #include <string.h>
 
 #define MISC_SCREEN_SAVER_ENABLED 1
 #define MISC_GAME_OF_LIFE_ENABLED 1
+#define MISC_PICTURE_ENABLED 1
 #define MISC_WIFI_SCAN_ENABLED 1
 
 MiscProgram_t miscPrograms[] = 
@@ -40,6 +42,20 @@ MiscProgram_t miscPrograms[] =
 		.buttonInput = Gol_ButtonInput,
 		.isRunning = false,
 		.updatePeriodMs = GOL_UPDATE_PERIOD_MS,
+		},
+	#endif
+	#if MISC_PICTURE_ENABLED
+	[MISC_PICTURE] = {
+		.name = "picture",
+		.init = Picture_Init,
+		.deinit = Picture_Deinit,
+		.start = Picture_Start,
+		.stop = Picture_Stop,
+		.update = Picture_Update,
+		.draw = Picture_Draw,
+		.buttonInput = Picture_ButtonInput,
+		.isRunning = false,
+		.updatePeriodMs = PICTURE_UPDATE_PERIOD_MS,
 		},
 	#endif
 	#if MISC_WIFI_SCAN_ENABLED

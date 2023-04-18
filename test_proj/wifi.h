@@ -19,8 +19,9 @@
 
 typedef enum WifiMode_e_
 {
-	WIFI_MODE_STATION,
 	WIFI_MODE_ACCESS_POINT,
+	WIFI_MODE_STATION,
+	WIFI_MODE_STATION_CONNECTED,
 	WIFI_MODE_NONE,
 	WIFI_MODE_MAX,
 } WifiMode_e;
@@ -29,7 +30,7 @@ typedef enum WifiRoutine_e_
 {
 	WIFI_ROUTINE_ACCESS_POINT_EXAMPLE,
 	// WIFI_ROUTINE_SCAN,
-	// WIFI_ROUTINE_TCP_RECV_TEST,
+	WIFI_ROUTINE_TCP_RECV_TEST,
 	WIFI_ROUTINE_NONE,
 	WIFI_ROUTINE_MAX,
 } WifiRoutine_e;
@@ -39,7 +40,9 @@ typedef struct WifiRoutine_s_
 	char *name;
 	bool (*init)(void *args);
 	bool (*deinit)(void);
+	bool (*poll)(void);
 	bool running;
+	uint16_t updatePeriodMs;
 	WifiMode_e requiredMode;
 } WifiRoutine_s;
 

@@ -3,6 +3,7 @@
 #include "pico/cyw43_arch.h"
 #include "hardware/timer.h"
 #include "access_point/picow_access_point.h"
+#include "tcp_recv_test/tcp_recv_test.h"
 #include <string.h>
 
 static struct repeating_timer wifiPollTimer;
@@ -14,14 +15,16 @@ static const char *authModeStrings[] = {
 };
 
 static const char *wifiModeStrings[] = {
-	[WIFI_MODE_STATION] = "WIFI_MODE_STATION",
 	[WIFI_MODE_ACCESS_POINT] = "WIFI_MODE_ACCESS_POINT",
+	[WIFI_MODE_STATION] = "WIFI_MODE_STATION",
+	[WIFI_MODE_STATION_CONNECTED] = "WIFI_MODE_STATION_CONNECTED",
 	[WIFI_MODE_NONE] = "WIFI_MODE_NONE",
 	[WIFI_MODE_MAX] = "WIFI_MODE_MAX",
 };
 
-static bool Wifi_NoneRoutineSanityInit(void *args){
+static bool Wifi_NoneRoutineSanityInit(void *args){ // TODO unelegant
 	printf("Wifi None Init Routine! This shouldnt happen!!\n");
+	return true;
 }
 static void Wifi_NoneRoutineSanityDeinit(void){
 	printf("Wifi None DeInit Routine! This shouldnt happen!!\n");
@@ -31,20 +34,26 @@ static WifiRoutine_s wifiRoutines[] = {
 	[WIFI_ROUTINE_ACCESS_POINT_EXAMPLE] = (WifiRoutine_s) { .name = "access_point_example",
 																													.init = PicowAp_Init,
 																													.deinit = PicowAp_Deinit,
+																													.poll = NULL,
 																													.running = false,
 																													.requiredMode = WIFI_MODE_ACCESS_POINT,
+																													.updatePeriodMs = 0,
 																												},
-	// [WIFI_ROUTINE_TCP_RECV_TEST] = 			  (WifiRoutine_s) { "access_point_example",
-	// 																												PicowAp_Init,
-	// 																												PicowAp_Deinit,
-	// 																												false,
-	// 																												WIFI_MODE_ACCESS_POINT,
-	// 																											},
+	[WIFI_ROUTINE_TCP_RECV_TEST] = 			  (WifiRoutine_s) { .name = "tcp_recv_test",
+																													.init = TcpRecvTest_Init,
+																													.deinit = TcpRecvTest_Deinit,
+																													.poll = TcpRecvTest_Update,
+																													.running = false,
+																													.requiredMode = WIFI_MODE_STATION_CONNECTED,
+																													.updatePeriodMs = TCP_RECV_TEST_UPDATE_PERIOD_MS,
+																												},
 	[WIFI_ROUTINE_NONE] = 								(WifiRoutine_s) { .name = "none",
 																													.init = Wifi_NoneRoutineSanityInit,
 																													.deinit = Wifi_NoneRoutineSanityInit,
+																													.poll = NULL,
 																													.running = false,
 																													.requiredMode = WIFI_MODE_NONE,
+																													.updatePeriodMs = 0,
 																												},
 };
 
@@ -119,7 +128,20 @@ static int Wifi_ScanResult(void *env, const cyw43_ev_scan_result_t *result) {
 
 static bool Wifi_Poll(struct repeating_timer *t)
 {
-	cyw43_arch_poll();
+	// cyw43_arch_poll(); // not needed anymore as inet stuff will be handled in the background
+	// instead, we'll poll the currently running routine if it wants
+	if (wifiContext.currentRoutineIdx < WIFI_ROUTINE_NONE)
+	{
+		if (wifiContext.currentRoutine->poll == NULL)
+		{
+			return;
+		}
+		bool pollRet = wifiContext.currentRoutine->poll();
+		if (!pollRet)
+		{
+			printf("Inet routine %s:%d failed to poll!\n", wifiContext.currentRoutine->name, wifiContext.currentRoutineIdx); 
+		}
+	}
 }
 
 void Wifi_Init(void)
@@ -238,8 +260,8 @@ bool Wifi_SetRoutine(WifiRoutine_e r, void *arg)
 	WifiRoutine_s *targetRoutine = Wifi_GetRoutinePtrByIdx(r);
 
 	// first deinit the current routine
-	ret = wifiContext.currentRoutine->deinit();
 	cyw43_arch_deinit();
+	ret = wifiContext.currentRoutine->deinit();
 	cyw43_arch_init();
 	wifiContext.currentRoutine = NULL;
 	wifiContext.currentRoutineIdx = WIFI_ROUTINE_NONE;
