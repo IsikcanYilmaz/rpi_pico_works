@@ -48,6 +48,7 @@ bool WifiScan_Init(void *arg)
 {
 	wifiScanContext.cursor = 0;
 	wifiScanContext.ssidSelectionIdx = WIFI_SCAN_NO_SSID_SELECTED;
+	//Wifi_SetMode(WIFI_MODE_STATION);
 	Wifi_Scan();
 	wifiScanContext.tsSinceLastScan = get_absolute_time();
 	wifiScanContext.knownNumScanRecords = 0;

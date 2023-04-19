@@ -330,16 +330,26 @@ bool Wifi_UnsetCurrentMode(void)
 
 bool Wifi_SetMode(WifiMode_e m)
 {
+	printf("Setting wifi mode to %d:%s\n", m, wifiModeStrings[m]);
 	if (m >= WIFI_MODE_MAX)
 	{
 		printf("Bad wifi mode %d\n", m);
 		return false;
 	}
-	printf("Setting wifi mode %d:%s\n", m);
+
+	// if we're currently running a routine that has a different mode requirement
+	// then deinit the routine also.
+	if (wifiContext.currentRoutine->requiredMode != m)
+	{
+		printf("Current wifi routine uses different mode. Unsetting routine\n");
+		Wifi_UnsetCurrentRoutine();
+	}
+
 	if (wifiContext.mode != WIFI_MODE_NONE)
 	{
 		Wifi_UnsetCurrentMode();
 	}
+
 	switch(m)
 	{
 		case WIFI_MODE_STATION:
@@ -351,6 +361,11 @@ bool Wifi_SetMode(WifiMode_e m)
 		{
 			printf("Pico AP SSID: %s, PASS: %s\n", wifiContext.apSsid, wifiContext.apPass);
 			cyw43_arch_enable_ap_mode(wifiContext.apSsid, wifiContext.apPass, WIFI_AP_DEFAULT_AUTH);
+			break;
+		}
+		case WIFI_MODE_STATION_CONNECTED:
+		{
+			// Special case.  // hmm
 			break;
 		}
 		case WIFI_MODE_NONE:

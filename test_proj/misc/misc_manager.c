@@ -140,7 +140,17 @@ void Misc_StartProgram(MiscIdx_e idx, void *arg)
 		miscPrograms[idx].isRunning = true;
 		miscPrograms[idx].start();
 		currentProgramIdx = idx;
-		Misc_TimerStart();
+
+		// Check if this misc program requires periodic updates/draws. if not, just run its update/draw once and call it
+		if (miscPrograms[idx].updatePeriodMs == 0)
+		{
+			miscPrograms[idx].update();
+			miscPrograms[idx].draw();
+		}
+		else
+		{
+			Misc_TimerStart();
+		}
 	}
 	else
 	{
