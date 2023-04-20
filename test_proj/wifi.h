@@ -6,7 +6,7 @@
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 
-#define WIFI_SCAN_POLL_PERIOD_MS 10
+#define WIFI_POLL_PERIOD_MS 250
 #define WIFI_CONNECT_TIMEOUT_MS 10000 
 #define WIFI_SCAN_BUF_LEN 50
 
@@ -46,17 +46,30 @@ typedef struct WifiRoutine_s_
 	WifiMode_e requiredMode;
 } WifiRoutine_s;
 
+typedef struct WifiAccessPoint_s_
+{
+	uint8_t bssid[6];
+	uint8_t ssid_len;
+	uint8_t ssid[WIFI_AP_SSID_MAX_LEN];
+	uint16_t channel;
+	uint8_t auth_mode;
+	int32_t rssi;
+} WifiAccessPoint_s;
+
 typedef struct WifiContext_s
 {
 	bool isConnected;
 	char apSsid[WIFI_AP_SSID_MAX_LEN]; // ssid and pass of our access point
 	char apPass[WIFI_AP_PASS_MAX_LEN];
-	cyw43_ev_scan_result_t scanBuf[WIFI_SCAN_BUF_LEN];
+	WifiAccessPoint_s scanBuf[WIFI_SCAN_BUF_LEN];
 	char *ssidStrings[WIFI_SCAN_BUF_LEN]; // for gui
 	uint16_t scanNumDevices;
 	WifiMode_e mode;
 	WifiRoutine_s *currentRoutine;
 	WifiRoutine_e currentRoutineIdx;
+	WifiAccessPoint_s connectedAp;
+	bool connected;
+	cyw43_t *cyw43_state;
 } WifiContext_t;
 
 void Wifi_Init(void);
@@ -70,9 +83,13 @@ bool Wifi_Scan(void);
 void Wifi_PollTimerStart(void);
 void Wifi_PollTimerStop(void);
 bool Wifi_Connect(char *ssid, char *pass);
+bool Wifi_Disconnect(void);
 void Wifi_PrintRecords(void);
 void Wifi_ClearScanBuf(void);
 uint16_t Wifi_GetNumScanRecords(void);
-cyw43_ev_scan_result_t* Wifi_GetScanRecordByIdx(uint16_t idx);
+WifiAccessPoint_s* Wifi_GetScanRecordByIdx(uint16_t idx);
 char** Wifi_GetStringsList(void);
+WifiRoutine_e Wifi_GetCurrentRoutine(void);
+bool Wifi_IsRoutineRunning(void);
+void Wifi_PrintInfo(void);
 #endif

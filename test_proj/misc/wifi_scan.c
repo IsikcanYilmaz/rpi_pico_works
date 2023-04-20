@@ -5,7 +5,7 @@
 
 WifiScanContext_s wifiScanContext;
 
-static void WifiScan_PopulateWifiInfoString(cyw43_ev_scan_result_t *result)
+static void WifiScan_PopulateWifiInfoString(WifiAccessPoint_s *result)
 {
 	// Setup
 	snprintf(wifiScanContext.wifiInfoStringBuf, WIFI_SCAN_INFO_STR_LEN, "ssid: %s\nrssi: %4d\nchan: %3d\nmac: %02x:%02x:%02x:%02x:%02x:%02x\nauth: 0x%x\n", result->ssid, result->rssi, result->channel, result->bssid[0], result->bssid[1], result->bssid[2], result->bssid[3], result->bssid[4], result->bssid[5], result->auth_mode);
@@ -23,7 +23,7 @@ static void WifiScan_GuiListItemSelectedCallback(uint16_t i)
 	}
 
 	// A wifi record is selected. make the list not in focus and the textbox in focus and display its info.
-	cyw43_ev_scan_result_t* r = Wifi_GetScanRecordByIdx(i);
+	WifiAccessPoint_s* r = Wifi_GetScanRecordByIdx(i);
 	if (r)
 	{
 		WifiScan_PopulateWifiInfoString(r);
@@ -48,7 +48,8 @@ bool WifiScan_Init(void *arg)
 {
 	wifiScanContext.cursor = 0;
 	wifiScanContext.ssidSelectionIdx = WIFI_SCAN_NO_SSID_SELECTED;
-	//Wifi_SetMode(WIFI_MODE_STATION);
+	Wifi_UnsetCurrentRoutine();
+	Wifi_SetMode(WIFI_MODE_STATION);
 	Wifi_Scan();
 	wifiScanContext.tsSinceLastScan = get_absolute_time();
 	wifiScanContext.knownNumScanRecords = 0;

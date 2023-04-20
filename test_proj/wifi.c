@@ -75,7 +75,7 @@ static void Wifi_PrintAuthMode(int auth)
 	}
 }
 
-static void Wifi_PrintScanResult(cyw43_ev_scan_result_t *result)
+static void Wifi_PrintScanResult(WifiAccessPoint_s *result)
 {
 	printf("ssid: %-32s rssi: %4d chan: %3d mac: %02x:%02x:%02x:%02x:%02x:%02x sec: 0x%x ",
 					 result->ssid, result->rssi, result->channel,
@@ -97,13 +97,25 @@ static bool Wifi_CompareMac(uint8_t *buf1, uint8_t *buf2)
 	return true;
 }
 
+// TODO horrible name :(
+static void Wifi_ConvertCyw43ScanResultToLocalStruct(cyw43_ev_scan_result_t *src, WifiAccessPoint_s *dst)
+{
+	dst->rssi = src->rssi;
+	dst->auth_mode = src->auth_mode;
+	dst->ssid_len = src->ssid_len;
+	dst->channel = src->channel;
+	strcpy(dst->ssid, src->ssid);
+	memcpy(dst->bssid, src->bssid, 6);
+}
+
 static bool Wifi_RecordScanResult(cyw43_ev_scan_result_t *result)
 {
 	for (uint16_t i = 0; i < wifiContext.scanNumDevices; i++)
 	{
 		if (Wifi_CompareMac(&(result->bssid), &(wifiContext.scanBuf[i].bssid))) // we saw this before
 		{
-			wifiContext.scanBuf[i] = *result;	
+			// wifiContext.scanBuf[i] = *result;	
+			Wifi_ConvertCyw43ScanResultToLocalStruct(result, &wifiContext.scanBuf[i]);
 			wifiContext.ssidStrings[i] = wifiContext.scanBuf[i].ssid;
 			return true;
 		}
@@ -113,7 +125,8 @@ static bool Wifi_RecordScanResult(cyw43_ev_scan_result_t *result)
 		printf("Scan buf full!\n");
 		return false;
 	}
-	wifiContext.scanBuf[wifiContext.scanNumDevices] = *result;
+	// wifiContext.scanBuf[wifiContext.scanNumDevices] = *result;
+	Wifi_ConvertCyw43ScanResultToLocalStruct(result, &wifiContext.scanBuf[wifiContext.scanNumDevices]);
 	wifiContext.ssidStrings[wifiContext.scanNumDevices] = wifiContext.scanBuf[wifiContext.scanNumDevices].ssid;
 	wifiContext.scanNumDevices++;
 }
@@ -128,20 +141,23 @@ static int Wifi_ScanResult(void *env, const cyw43_ev_scan_result_t *result) {
 
 static bool Wifi_Poll(struct repeating_timer *t)
 {
-	// cyw43_arch_poll(); // not needed anymore as inet stuff will be handled in the background
-	// instead, we'll poll the currently running routine if it wants
+	// first poll to see the wifi status. then
+	// we'll poll the currently running routine if it wants
+	bool pollRet = true;
 	if (wifiContext.currentRoutineIdx < WIFI_ROUTINE_NONE)
 	{
 		if (wifiContext.currentRoutine->poll == NULL)
 		{
-			return;
+			return true;
 		}
-		bool pollRet = wifiContext.currentRoutine->poll();
+		pollRet = wifiContext.currentRoutine->poll();
 		if (!pollRet)
 		{
 			printf("Inet routine %s:%d failed to poll!\n", wifiContext.currentRoutine->name, wifiContext.currentRoutineIdx); 
+			return false;
 		}
 	}
+	return pollRet;
 }
 
 void Wifi_Init(void)
@@ -149,15 +165,15 @@ void Wifi_Init(void)
 	wifiContext.isConnected = false;
 	wifiContext.mode = WIFI_MODE_NONE;
 	wifiContext.currentRoutineIdx = WIFI_ROUTINE_NONE;
-	wifiContext.currentRoutine = NULL;
+	wifiContext.currentRoutine = &wifiRoutines[WIFI_ROUTINE_NONE];
+	memset(&wifiContext.connectedAp, 0x00, sizeof(WifiAccessPoint_s));
 	memset(wifiContext.apSsid, 0x00, sizeof(WIFI_AP_SSID_MAX_LEN));
 	memset(wifiContext.apPass, 0x00, sizeof(WIFI_AP_PASS_MAX_LEN));
 	strcpy(wifiContext.apSsid, WIFI_AP_DEFAULT_SSID);
 	strcpy(wifiContext.apPass, WIFI_AP_DEFAULT_PASS);
+	wifiContext.cyw43_state = &cyw43_state;
 	Wifi_ClearScanBuf();
 	cyw43_arch_init();
-	// cyw43_arch_enable_sta_mode();
-	// Wifi_PollTimerStart();
 }
 
 void Wifi_Deinit(void)
@@ -167,7 +183,7 @@ void Wifi_Deinit(void)
 
 void Wifi_ClearScanBuf(void)
 {
-	memset(&wifiContext.scanBuf, 0x00, sizeof(cyw43_ev_scan_result_t) * WIFI_SCAN_BUF_LEN);
+	memset(&wifiContext.scanBuf, 0x00, sizeof(WifiAccessPoint_s) * WIFI_SCAN_BUF_LEN);
 	memset(&wifiContext.ssidStrings, 0x00, sizeof(char *) * WIFI_SCAN_BUF_LEN);
 	wifiContext.scanNumDevices = 0;
 }
@@ -195,7 +211,7 @@ bool Wifi_Scan(void)
 
 void Wifi_PollTimerStart(void)
 {
-	add_repeating_timer_ms(WIFI_SCAN_POLL_PERIOD_MS, Wifi_Poll, NULL, &wifiPollTimer);
+	add_repeating_timer_ms(WIFI_POLL_PERIOD_MS, Wifi_Poll, NULL, &wifiPollTimer);
 }
 
 void Wifi_PollTimerStop(void)
@@ -215,24 +231,46 @@ WifiRoutine_s *Wifi_GetRoutinePtrByIdx(WifiRoutine_e r)
 	}
 }
 
+bool Wifi_Disconnect(void)
+{
+	if (!wifiContext.isConnected)
+	{
+		printf("Wifi not connected, cant disconnect\n");
+		return true;
+	}
+	int ret = cyw43_wifi_leave(wifiContext.cyw43_state, CYW43_ITF_STA);
+	if (ret)
+	{
+		printf("Could not leave network %d\n", ret);
+	}
+	return ret == 0;
+}
+
 bool Wifi_Connect(char *ssid, char *pass)
 {
 	if (wifiContext.mode != WIFI_MODE_STATION)
 	{
-		printf("Wrong mode for scanning %d:%s\n", wifiContext.mode, wifiModeStrings[wifiContext.mode]);
+		printf("Wrong mode for connection %d:%s\n", wifiContext.mode, wifiModeStrings[wifiContext.mode]);
 		return false;
 	}
 	printf("Attempting to connect to AP SSID:%s\n", ssid);
 	if (cyw43_arch_wifi_connect_timeout_ms(ssid, pass, CYW43_AUTH_WPA2_AES_PSK, WIFI_CONNECT_TIMEOUT_MS)) 
 	{
 		printf("Failed to connect!\n");
-		return false;
+		wifiContext.isConnected = false;
 	}
 	else
 	{
 		printf("Connected!\n");
-		return true;
+		wifiContext.connectedAp.ssid_len = strlen(ssid);
+		strcpy(wifiContext.connectedAp.ssid, ssid);
+		cyw43_wifi_get_bssid(wifiContext.cyw43_state, wifiContext.connectedAp.bssid);
+		cyw43_wifi_get_rssi(wifiContext.cyw43_state, &wifiContext.connectedAp.rssi);
+		wifiContext.connectedAp.auth_mode = (uint8_t) cyw43_wifi_ap_get_auth(wifiContext.cyw43_state);
+		wifiContext.connectedAp.channel = 0;
+		wifiContext.isConnected = true;
 	}
+	return wifiContext.connected;
 }
 
 bool Wifi_UnsetCurrentRoutine(void)
@@ -259,7 +297,7 @@ bool Wifi_SetRoutine(WifiRoutine_e r, void *arg)
 
 	WifiRoutine_s *targetRoutine = Wifi_GetRoutinePtrByIdx(r);
 
-	// first deinit the current routine
+	// first deinit the current routine and unset it
 	cyw43_arch_deinit();
 	ret = wifiContext.currentRoutine->deinit();
 	cyw43_arch_init();
@@ -280,10 +318,10 @@ bool Wifi_SetRoutine(WifiRoutine_e r, void *arg)
 	if (wifiContext.mode != targetRoutine->requiredMode)
 	{
 		printf("Need to change wifi modes!\n");
-		// TODO
+		Wifi_UnsetCurrentMode();
 	}
 
-	// now we can set the new mode
+	// now that we unset our routine we can set the new mode
 	ret = Wifi_SetMode(targetRoutine->requiredMode);
 	if (!ret)
 	{
@@ -306,16 +344,22 @@ bool Wifi_SetRoutine(WifiRoutine_e r, void *arg)
 bool Wifi_UnsetCurrentMode(void)
 {
 	printf("Unsetting wifi mode %d:%s\n", wifiContext.mode, wifiModeStrings[wifiContext.mode]);
+	int ret = 0;
 	switch (wifiContext.mode)
 	{
 		case WIFI_MODE_STATION:
 		{
-			// TODO
+			ret = cyw43_wifi_leave(wifiContext.cyw43_state, CYW43_ITF_STA);
 			break;
 		}
 		case WIFI_MODE_ACCESS_POINT:
 		{
-			// TODO
+			ret = cyw43_wifi_leave(wifiContext.cyw43_state, CYW43_ITF_AP);
+			break;
+		}
+		case WIFI_MODE_STATION_CONNECTED:
+		{
+			ret = cyw43_wifi_leave(wifiContext.cyw43_state, CYW43_ITF_STA);
 			break;
 		}
 		default:
@@ -337,12 +381,18 @@ bool Wifi_SetMode(WifiMode_e m)
 		return false;
 	}
 
+	if (m == wifiContext.mode)
+	{
+		printf("Already in mode %d:%s\n", m, wifiModeStrings[m]);
+		return true;
+	}
+
 	// if we're currently running a routine that has a different mode requirement
 	// then deinit the routine also.
-	if (wifiContext.currentRoutine->requiredMode != m)
+	if (wifiContext.currentRoutineIdx != WIFI_ROUTINE_NONE)
 	{
-		printf("Current wifi routine uses different mode. Unsetting routine\n");
-		Wifi_UnsetCurrentRoutine();
+		printf("Need to exit out of the current wifi routine first! %d:%s\n", wifiContext.currentRoutineIdx, wifiContext.currentRoutine->name);
+		return false;
 	}
 
 	if (wifiContext.mode != WIFI_MODE_NONE)
@@ -352,6 +402,7 @@ bool Wifi_SetMode(WifiMode_e m)
 
 	switch(m)
 	{
+		case WIFI_MODE_NONE: // For now lets let NONE mode do STATION
 		case WIFI_MODE_STATION:
 		{
 			cyw43_arch_enable_sta_mode();
@@ -365,11 +416,8 @@ bool Wifi_SetMode(WifiMode_e m)
 		}
 		case WIFI_MODE_STATION_CONNECTED:
 		{
+			return false;
 			// Special case.  // hmm
-			break;
-		}
-		case WIFI_MODE_NONE:
-		{
 			break;
 		}
 		default:
@@ -396,7 +444,7 @@ uint16_t Wifi_GetNumScanRecords(void)
 	return wifiContext.scanNumDevices;
 }
 
-cyw43_ev_scan_result_t* Wifi_GetScanRecordByIdx(uint16_t idx)
+WifiAccessPoint_s* Wifi_GetScanRecordByIdx(uint16_t idx)
 {
 	if (idx >= wifiContext.scanNumDevices) 
 	{
@@ -409,4 +457,26 @@ cyw43_ev_scan_result_t* Wifi_GetScanRecordByIdx(uint16_t idx)
 char** Wifi_GetStringsList(void)
 {
 	return wifiContext.ssidStrings;
+}
+
+WifiRoutine_e Wifi_GetCurrentRoutine(void)
+{
+	return (WifiRoutine_e) wifiContext.currentRoutineIdx;
+}
+
+bool Wifi_IsRoutineRunning(void)
+{
+	return Wifi_GetCurrentRoutine() != WIFI_ROUTINE_NONE;
+}
+
+void Wifi_PrintInfo(void)
+{
+	printf("Wifi Info:\n");
+	printf("Mode: %d:%s\n", wifiContext.mode, wifiModeStrings[wifiContext.mode]);
+	printf("Routine: %d:%s\n", wifiContext.currentRoutineIdx, wifiContext.currentRoutine->name);
+	if (wifiContext.isConnected)
+	{
+		printf("Connected to wifi access point:\n");
+		Wifi_PrintScanResult(&wifiContext.connectedAp);
+	}
 }

@@ -106,6 +106,11 @@ void UserCommand_Wifi(uint8_t argc, char **argv)
 	ASSERT_ARGS(2);
 
 	// args
+	if (strcmp(argv[1], "info") == 0)
+	{
+		Wifi_PrintInfo();
+		return;
+	}
 	if (strcmp(argv[1], "mode") == 0)
 	{
 		ASSERT_ARGS(3)
@@ -156,15 +161,18 @@ void UserCommand_Wifi(uint8_t argc, char **argv)
 	{
 		printf("Wifi scan\n");
 		Wifi_Scan();
+		return;
 	}
-	else if (strcmp(argv[1], "list") == 0)
+	if (strcmp(argv[1], "list") == 0)
 	{
 		Wifi_PrintRecords();
+		return;
 	}
-	else if (strcmp(argv[1], "connect") == 0)
+	if (strcmp(argv[1], "connect") == 0)
 	{
 		ASSERT_ARGS(4);
 		Wifi_Connect(argv[2], argv[3]);
+		return;
 	}
 	else
 	{

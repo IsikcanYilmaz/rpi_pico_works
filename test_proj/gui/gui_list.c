@@ -49,6 +49,7 @@ void GuiList_SetStrings(GuiList_t *l, char **strings, uint16_t numItems)
 		l->cursor = numItems-1;
 	}
 	l->numItems = numItems;
+	GuiList_CalculateRenderItems(l);
 }
 
 void GuiList_SetCursor(GuiList_t *l, uint16_t c)
@@ -69,6 +70,7 @@ void GuiList_Update(GuiList_t *l)
 	{
 		return;
 	}
+	// TODO
 }
 
 void GuiList_Draw(GuiList_t *l)

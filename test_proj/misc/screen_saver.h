@@ -20,7 +20,7 @@
 #define DEFAULT_X_VEL 1
 #define DEFAULT_Y_VEL 1
 
-#define SCREEN_SAVER_DEFAULT_STRING "TEST"
+#define SCREEN_SAVER_DEFAULT_STRING "~~TEST~~"
 
 typedef enum Direction_e_
 {
