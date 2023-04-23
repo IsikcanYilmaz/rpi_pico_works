@@ -3,25 +3,23 @@
 import socket
 import argparse
 import sys
+import time
 
-HOST = "localhost"
+HOST = "192.168.50.222"
 PORT = 9999
 
 # https://stackoverflow.com/questions/54353238/how-can-i-create-a-tcp-server-using-python-3
 def main():
-    data = " ".join(sys.argv[1:])
-
     # Create a socket (SOCK_STREAM means a TCP socket)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         # Connect to server and send data
         sock.connect((HOST, PORT))
-        sock.sendall(bytes(data + "\n", "utf-8"))
-
-        # Receive data from the server and shut down
-        received = str(sock.recv(1024), "utf-8")
-
-    print("Sent:     {}".format(data))
-    print("Received: {}".format(received))
+        while(True):
+            received = str(sock.recv(1024), "utf-8")
+            if not received: 
+                break
+            print("RECV:", received)
+            time.sleep(1)
 
 if __name__ == "__main__":
     main()

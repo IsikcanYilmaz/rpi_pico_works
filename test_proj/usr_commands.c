@@ -10,6 +10,7 @@
 #include "paint.h"
 #include "game_of_life.h"
 #include "screen_saver.h"
+#include "tcp_recv_test/tcp_recv_test.h"
 
 UserCommand_t userCommands[] = {
 	{"help", UserCommand_Help, "Print help text"},
@@ -101,7 +102,7 @@ void UserCommand_Loopback(uint8_t argc, char **argv)
 	printf("\n");
 }
 
-void UserCommand_Wifi(uint8_t argc, char **argv)
+void UserCommand_Wifi(uint8_t argc, char **argv) // TODO make this mode modular. what is this pile of ifs dawg
 {
 	ASSERT_ARGS(2);
 
@@ -147,6 +148,18 @@ void UserCommand_Wifi(uint8_t argc, char **argv)
 		else if (strcmp(argv[2], "ap_example") == 0)
 		{
 			ret = Wifi_SetRoutine(WIFI_ROUTINE_ACCESS_POINT_EXAMPLE, NULL);
+		}
+		else if (strcmp(argv[2], "tcp_recv") == 0)
+		{
+			if (argc == 5)
+			{
+				TcpRecvInitArgs_s args = (TcpRecvInitArgs_s) {.ipAddr = argv[3], .port = atoi(argv[4])};
+				ret = Wifi_SetRoutine(WIFI_ROUTINE_TCP_RECV_TEST, &args);
+			}
+			else
+			{
+				ret = Wifi_SetRoutine(WIFI_ROUTINE_TCP_RECV_TEST, NULL);
+			}
 		}
 		else
 		{

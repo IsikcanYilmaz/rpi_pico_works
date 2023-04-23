@@ -44,7 +44,7 @@ static WifiRoutine_s wifiRoutines[] = {
 																													.deinit = TcpRecvTest_Deinit,
 																													.poll = TcpRecvTest_Update,
 																													.running = false,
-																													.requiredMode = WIFI_MODE_STATION_CONNECTED,
+																													.requiredMode = WIFI_MODE_STATION,
 																													.updatePeriodMs = TCP_RECV_TEST_UPDATE_PERIOD_MS,
 																												},
 	[WIFI_ROUTINE_NONE] = 								(WifiRoutine_s) { .name = "none",
@@ -125,7 +125,6 @@ static bool Wifi_RecordScanResult(cyw43_ev_scan_result_t *result)
 		printf("Scan buf full!\n");
 		return false;
 	}
-	// wifiContext.scanBuf[wifiContext.scanNumDevices] = *result;
 	Wifi_ConvertCyw43ScanResultToLocalStruct(result, &wifiContext.scanBuf[wifiContext.scanNumDevices]);
 	wifiContext.ssidStrings[wifiContext.scanNumDevices] = wifiContext.scanBuf[wifiContext.scanNumDevices].ssid;
 	wifiContext.scanNumDevices++;
@@ -154,7 +153,6 @@ static bool Wifi_Poll(struct repeating_timer *t)
 		if (!pollRet)
 		{
 			printf("Inet routine %s:%d failed to poll!\n", wifiContext.currentRoutine->name, wifiContext.currentRoutineIdx); 
-			return false;
 		}
 	}
 	return pollRet;
@@ -298,9 +296,9 @@ bool Wifi_SetRoutine(WifiRoutine_e r, void *arg)
 	WifiRoutine_s *targetRoutine = Wifi_GetRoutinePtrByIdx(r);
 
 	// first deinit the current routine and unset it
-	cyw43_arch_deinit();
+	// cyw43_arch_deinit();
 	ret = wifiContext.currentRoutine->deinit();
-	cyw43_arch_init();
+	// cyw43_arch_init();
 	wifiContext.currentRoutine = NULL;
 	wifiContext.currentRoutineIdx = WIFI_ROUTINE_NONE;
 	if (!ret)
