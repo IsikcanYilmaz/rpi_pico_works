@@ -10,6 +10,7 @@ target_include_directories(misc PRIVATE
 													../oled_lib/Fonts
 													../util/
 													../gui/
+													../inet/
 										)
 target_link_libraries(misc PRIVATE
 											pico_stdlib

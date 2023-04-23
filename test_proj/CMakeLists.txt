@@ -59,7 +59,7 @@ target_link_libraries(test_proj
 											util
 											gui
 											picow_access_point_background
-											tcp_recv_test
+											tcp_recv_picture
 											# Below for the oled driver
 											OLED
 											# GUI

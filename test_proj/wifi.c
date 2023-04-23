@@ -3,7 +3,7 @@
 #include "pico/cyw43_arch.h"
 #include "hardware/timer.h"
 #include "access_point/picow_access_point.h"
-#include "tcp_recv_test/tcp_recv_test.h"
+#include "tcp_recv_picture/tcp_recv_picture.h"
 #include <string.h>
 
 static struct repeating_timer wifiPollTimer;
@@ -39,13 +39,13 @@ static WifiRoutine_s wifiRoutines[] = {
 																													.requiredMode = WIFI_MODE_ACCESS_POINT,
 																													.updatePeriodMs = 0,
 																												},
-	[WIFI_ROUTINE_TCP_RECV_TEST] = 			  (WifiRoutine_s) { .name = "tcp_recv_test",
-																													.init = TcpRecvTest_Init,
-																													.deinit = TcpRecvTest_Deinit,
-																													.poll = TcpRecvTest_Update,
+	[WIFI_ROUTINE_TCP_RECV_PICTURE] = 	  (WifiRoutine_s) { .name = "tcp_recv_picture",
+																													.init = TcpRecvPicture_Init,
+																													.deinit = TcpRecvPicture_Deinit,
+																													.poll = TcpRecvPicture_Update,
 																													.running = false,
 																													.requiredMode = WIFI_MODE_STATION,
-																													.updatePeriodMs = TCP_RECV_TEST_UPDATE_PERIOD_MS,
+																													.updatePeriodMs = TCP_RECV_PICTURE_UPDATE_PERIOD_MS,
 																												},
 	[WIFI_ROUTINE_NONE] = 								(WifiRoutine_s) { .name = "none",
 																													.init = Wifi_NoneRoutineSanityInit,

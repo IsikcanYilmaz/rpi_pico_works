@@ -24,6 +24,15 @@ class TCPSendText(socketserver.BaseRequestHandler):
         self.data = input()
         self.request.sendall(bytes(self.data.upper().encode()))
 
+class TCPSendPicture(socketserver.BaseRequestHandler):
+    def __init__(self):
+        f = open("oled_ali.png.bin", "rb")
+        self.data = f.read()
+        f.close()
+
+    def handle(self):
+        self.request.sendall(self.data)
+
 def serveForever():
     # # Create the server, binding to localhost on port 9999
     # with socketserver.TCPServer((HOST, PORT), TCPEcho) as server:
@@ -33,7 +42,7 @@ def serveForever():
     with socketserver.TCPServer((HOST,PORT), TCPSendText) as server:
         server.serve_forever()
 
-def main():
+def sendText():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         s.listen(1)
@@ -43,7 +52,18 @@ def main():
             while True:
                 data = input("Enter input:")
                 conn.send(bytes(data.encode()))
-                
+def main():
+    f = open("oled_ali.png.bin", "rb")
+    data = f.read()
+    f.close()
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((HOST, PORT))
+        s.listen(1)
+        conn, addr = s.accept()
+        with conn:
+            print("Connection: ", addr)
+            conn.send(data)
+
 
 if __name__ == "__main__":
     main()

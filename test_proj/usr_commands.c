@@ -10,7 +10,7 @@
 #include "paint.h"
 #include "game_of_life.h"
 #include "screen_saver.h"
-#include "tcp_recv_test/tcp_recv_test.h"
+#include "tcp_recv_picture/tcp_recv_picture.h"
 
 UserCommand_t userCommands[] = {
 	{"help", UserCommand_Help, "Print help text"},
@@ -153,12 +153,12 @@ void UserCommand_Wifi(uint8_t argc, char **argv) // TODO make this mode modular.
 		{
 			if (argc == 5)
 			{
-				TcpRecvInitArgs_s args = (TcpRecvInitArgs_s) {.ipAddr = argv[3], .port = atoi(argv[4])};
-				ret = Wifi_SetRoutine(WIFI_ROUTINE_TCP_RECV_TEST, &args);
+				TcpRecvInitArgs_s args = (TcpRecvInitArgs_s) {.ipAddr = argv[3], .port = atoi(argv[4]), .pictureReceivedCallback = NULL};
+				ret = Wifi_SetRoutine(WIFI_ROUTINE_TCP_RECV_PICTURE, &args);
 			}
 			else
 			{
-				ret = Wifi_SetRoutine(WIFI_ROUTINE_TCP_RECV_TEST, NULL);
+				ret = Wifi_SetRoutine(WIFI_ROUTINE_TCP_RECV_PICTURE, NULL);
 			}
 		}
 		else
