@@ -17,7 +17,6 @@ static const char *authModeStrings[] = {
 static const char *wifiModeStrings[] = {
 	[WIFI_MODE_ACCESS_POINT] = "WIFI_MODE_ACCESS_POINT",
 	[WIFI_MODE_STATION] = "WIFI_MODE_STATION",
-	[WIFI_MODE_STATION_CONNECTED] = "WIFI_MODE_STATION_CONNECTED",
 	[WIFI_MODE_NONE] = "WIFI_MODE_NONE",
 	[WIFI_MODE_MAX] = "WIFI_MODE_MAX",
 };
@@ -37,6 +36,7 @@ static WifiRoutine_s wifiRoutines[] = {
 																													.poll = NULL,
 																													.running = false,
 																													.requiredMode = WIFI_MODE_ACCESS_POINT,
+																													.requiredConnection = false,
 																													.updatePeriodMs = 0,
 																												},
 	[WIFI_ROUTINE_TCP_RECV_PICTURE] = 	  (WifiRoutine_s) { .name = "tcp_recv_picture",
@@ -45,6 +45,7 @@ static WifiRoutine_s wifiRoutines[] = {
 																													.poll = TcpRecvPicture_Update,
 																													.running = false,
 																													.requiredMode = WIFI_MODE_STATION,
+																													.requiredConnection = true,
 																													.updatePeriodMs = TCP_RECV_PICTURE_UPDATE_PERIOD_MS,
 																												},
 	[WIFI_ROUTINE_NONE] = 								(WifiRoutine_s) { .name = "none",
@@ -53,6 +54,7 @@ static WifiRoutine_s wifiRoutines[] = {
 																													.poll = NULL,
 																													.running = false,
 																													.requiredMode = WIFI_MODE_NONE,
+																													.requiredConnection = false,
 																													.updatePeriodMs = 0,
 																												},
 };
@@ -172,6 +174,7 @@ void Wifi_Init(void)
 	wifiContext.cyw43_state = &cyw43_state;
 	Wifi_ClearScanBuf();
 	cyw43_arch_init();
+	Wifi_SetMode(WIFI_DEFAULT_MODE);
 }
 
 void Wifi_Deinit(void)
@@ -240,6 +243,10 @@ bool Wifi_Disconnect(void)
 	if (ret)
 	{
 		printf("Could not leave network %d\n", ret);
+	}
+	else
+	{
+		wifiContext.connected = false;
 	}
 	return ret == 0;
 }
@@ -355,11 +362,6 @@ bool Wifi_UnsetCurrentMode(void)
 			ret = cyw43_wifi_leave(wifiContext.cyw43_state, CYW43_ITF_AP);
 			break;
 		}
-		case WIFI_MODE_STATION_CONNECTED:
-		{
-			ret = cyw43_wifi_leave(wifiContext.cyw43_state, CYW43_ITF_STA);
-			break;
-		}
 		default:
 		{
 			printf("Nothing to unset for current mode %d:%s\n", wifiContext.mode, wifiModeStrings[wifiContext.mode]);
@@ -400,7 +402,6 @@ bool Wifi_SetMode(WifiMode_e m)
 
 	switch(m)
 	{
-		case WIFI_MODE_NONE: // For now lets let NONE mode do STATION
 		case WIFI_MODE_STATION:
 		{
 			cyw43_arch_enable_sta_mode();
@@ -412,10 +413,8 @@ bool Wifi_SetMode(WifiMode_e m)
 			cyw43_arch_enable_ap_mode(wifiContext.apSsid, wifiContext.apPass, WIFI_AP_DEFAULT_AUTH);
 			break;
 		}
-		case WIFI_MODE_STATION_CONNECTED:
+		case WIFI_MODE_NONE: // For now lets let NONE mode do STATION
 		{
-			return false;
-			// Special case.  // hmm
 			break;
 		}
 		default:

@@ -5,6 +5,7 @@
 #include "game_of_life.h"
 #include "wifi_scan.h"
 #include "picture.h"
+#include "video.h"
 #include "usr_commands.h"
 #include <stdio.h>
 #include <string.h>
@@ -12,6 +13,7 @@
 #define MISC_SCREEN_SAVER_ENABLED 1
 #define MISC_GAME_OF_LIFE_ENABLED 1
 #define MISC_PICTURE_ENABLED 1
+#define MISC_VIDEO_ENABLED 0
 #define MISC_WIFI_SCAN_ENABLED 1
 
 MiscProgram_t miscPrograms[] = 
@@ -56,6 +58,20 @@ MiscProgram_t miscPrograms[] =
 		.buttonInput = Picture_ButtonInput,
 		.isRunning = false,
 		.updatePeriodMs = PICTURE_UPDATE_PERIOD_MS,
+		},
+	#endif
+	#if MISC_VIDEO_ENABLED
+	[MISC_VIDEO] = {
+		.name = "video",
+		.init = Video_Init,
+		.deinit = Video_Deinit,
+		.start = Video_Start,
+		.stop = Video_Stop,
+		.update = Video_Update,
+		.draw = Video_Draw,
+		.buttonInput = Video_ButtonInput,
+		.isRunning = false,
+		.updatePeriodMs = VIDEO_UPDATE_PERIOD_MS,
 		},
 	#endif
 	#if MISC_WIFI_SCAN_ENABLED

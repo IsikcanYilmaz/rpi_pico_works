@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include "button.h"
 
-#define PICTURE_UPDATE_PERIOD_MS 0 
+#define PICTURE_UPDATE_PERIOD_MS 20
 
 bool Picture_Init(void *arg);
 void Picture_Deinit(void);

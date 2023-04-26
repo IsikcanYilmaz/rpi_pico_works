@@ -17,11 +17,12 @@
 #define WIFI_AP_DEFAULT_PASS "password"
 #define WIFI_AP_DEFAULT_AUTH CYW43_AUTH_WPA2_AES_PSK
 
+#define WIFI_DEFAULT_MODE WIFI_MODE_STATION
+
 typedef enum WifiMode_e_
 {
 	WIFI_MODE_ACCESS_POINT,
 	WIFI_MODE_STATION,
-	WIFI_MODE_STATION_CONNECTED,
 	WIFI_MODE_NONE,
 	WIFI_MODE_MAX,
 } WifiMode_e;
@@ -44,6 +45,7 @@ typedef struct WifiRoutine_s_
 	bool running;
 	uint16_t updatePeriodMs;
 	WifiMode_e requiredMode;
+	bool requiredConnection;
 } WifiRoutine_s;
 
 typedef struct WifiAccessPoint_s_

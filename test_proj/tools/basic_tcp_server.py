@@ -3,6 +3,7 @@
 import socket
 import socketserver
 import argparse
+import time
 
 HOST = "192.168.50.222"
 PORT = 9999
@@ -52,7 +53,8 @@ def sendText():
             while True:
                 data = input("Enter input:")
                 conn.send(bytes(data.encode()))
-def main():
+
+def sendSingleImage():
     f = open("oled_ali.png.bin", "rb")
     data = f.read()
     f.close()
@@ -64,6 +66,29 @@ def main():
             print("Connection: ", addr)
             conn.send(data)
 
+def main():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((HOST, PORT))
+        s.listen(1)
+        conn, addr = s.accept()
+        with conn:
+            print("Connection: ", addr)
+            frame = 1
+            numFrames = 120
+            goingUp = True
+            while(True):
+                f = open(f"./video_test/oled_test{frame}.jpg.bin", "rb")
+                data = f.read()
+                f.close()
+                conn.send(data)
+                time.sleep(0.25)
+                frame = frame + (1 if goingUp else -1)
+                if (frame > numFrames):
+                    frame = numFrames
+                    goingUp = False
+                elif (frame < 1):
+                    frame = 1
+                    goingUp = True
 
 if __name__ == "__main__":
     main()

@@ -8,7 +8,7 @@ OLED_WIDTH = 128
 OLED_HEIGHT = 64
 size = (OLED_WIDTH, OLED_HEIGHT)
 
-WHITE_VALUE_THRESHOLD = 90
+WHITE_VALUE_THRESHOLD = 80
 
 def embed_to_c_file(bytes):
     hex_str = "{\n"
@@ -89,17 +89,17 @@ def main():
     main_img = Image.open(image_filename)
     shrunk_img = shrink_and_stretch_image(main_img)
     shrunk_bw_img = convert_image_to_bw(shrunk_img)
-    shrunk_bw_img.save("shrunk_bw_"+image_filename)
+    # shrunk_bw_img.save("shrunk_bw_"+image_filename)
     bm = create_bitmap_from_image(shrunk_bw_img)
     bmimg = create_image_from_bitmap(bm)
     bmimg.save("from_bitmap_" + image_filename)
     f = open("oled_" + image_filename + ".bin", "wb")
     f.write(bm.get_bytes())
     f.close()
-    c_file_str = embed_to_c_file(bm.get_bytes())
-    f = open("embedded_" + image_filename + ".c", "w")
-    f.write(c_file_str)
-    f.close()
+    # c_file_str = embed_to_c_file(bm.get_bytes())
+    # f = open("embedded_" + image_filename + ".c", "w")
+    # f.write(c_file_str)
+    # f.close()
 
 if __name__ == "__main__":
     main()
