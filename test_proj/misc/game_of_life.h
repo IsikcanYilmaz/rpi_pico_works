@@ -3,6 +3,7 @@
 #include "bitmap.h"
 #include "misc_manager.h"
 #include "button.h"
+#include <stdbool.h>
 
 #define GOL_BOARD_BUF_LEN (128 * 64 / 8)
 #define GOL_WIDTH 126
@@ -18,6 +19,7 @@ typedef struct GolContext_t
 {
 	Bitmap_t *currentBoard;
 	Bitmap_t *nextBoard;
+	bool autoBlocks;
 } GolContext_s;
 
 bool Gol_Init(void *arg);

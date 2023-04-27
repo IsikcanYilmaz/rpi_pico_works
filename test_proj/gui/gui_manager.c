@@ -136,37 +136,37 @@ void GuiMan_TakeButtonInput(Button_e b, ButtonGesture_e g)
 		return;
 	}	
 
-	if (g == GESTURE_SINGLE_TAP)
-	{
-		if (b == BUTTON_0)
-		{
-			guiManContext.programSelectionIdx -= 1;
-			if (guiManContext.programSelectionIdx >= Misc_GetNumPrograms())
-			{
-				guiManContext.programSelectionIdx = Misc_GetNumPrograms() - 1;
-			}
-		}
-		else if (b == BUTTON_1)
-		{
-			guiManContext.programSelectionIdx += 1;
-			if (guiManContext.programSelectionIdx >= Misc_GetNumPrograms())
-			{
-				guiManContext.programSelectionIdx = 0;
-			}
-		}
-	}
-	
-	if (g == GESTURE_DOUBLE_TAP)
-	{
-		if (b == BUTTON_0)
-		{
-			Misc_StopProgram();
-			GuiMan_Start();
-		}
-		else if (b == BUTTON_1)
-		{
-			GuiMan_Stop();
-			Misc_StartProgram(guiManContext.programSelectionIdx, NULL);
-		}
-	}
+	// if (g == GESTURE_SINGLE_TAP)
+	// {
+	// 	if (b == BUTTON_0)
+	// 	{
+	// 		guiManContext.programSelectionIdx -= 1;
+	// 		if (guiManContext.programSelectionIdx >= Misc_GetNumPrograms())
+	// 		{
+	// 			guiManContext.programSelectionIdx = Misc_GetNumPrograms() - 1;
+	// 		}
+	// 	}
+	// 	else if (b == BUTTON_1)
+	// 	{
+	// 		guiManContext.programSelectionIdx += 1;
+	// 		if (guiManContext.programSelectionIdx >= Misc_GetNumPrograms())
+	// 		{
+	// 			guiManContext.programSelectionIdx = 0;
+	// 		}
+	// 	}
+	// }
+	// 
+	// if (g == GESTURE_DOUBLE_TAP)
+	// {
+	// 	if (b == BUTTON_0)
+	// 	{
+	// 		Misc_StopProgram();
+	// 		GuiMan_Start();
+	// 	}
+	// 	else if (b == BUTTON_1)
+	// 	{
+	// 		GuiMan_Stop();
+	// 		Misc_StartProgram(guiManContext.programSelectionIdx, NULL);
+	// 	}
+	// }
 }

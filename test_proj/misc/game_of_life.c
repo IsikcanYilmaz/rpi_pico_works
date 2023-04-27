@@ -2,6 +2,7 @@
 #include "oled_manager.h"
 #include "test_functionality.h"
 #include "button.h"
+#include "pico/rand.h"
 #include <stdlib.h>
 
 uint8_t currentBoardBuf[GOL_BOARD_BUF_LEN];
@@ -10,22 +11,12 @@ uint8_t nextBoardBuf[GOL_BOARD_BUF_LEN];
 Bitmap_t currentBoard = {.buf = currentBoardBuf, .width = GOL_WIDTH, .height = GOL_HEIGHT};
 Bitmap_t nextBoard = {.buf = nextBoardBuf, .width = GOL_WIDTH, .height = GOL_HEIGHT};
 
-GolContext_s golContext = {.currentBoard = &currentBoard, .nextBoard = &nextBoard};
+GolContext_s golContext = {.currentBoard = &currentBoard, .nextBoard = &nextBoard, .autoBlocks = true};
 
 bool Gol_Init(void *arg)
 {
 	Bitmap_Clear(&currentBoard);
 	Bitmap_Clear(&nextBoard);
-
-	// test
-	// Gol_SetCell(0, 3, true);
-	// Gol_SetCell(1, 3, true);
-	// Gol_SetCell(2, 3, true);
-	// Gol_SetCell(2, 2, true);
-	// Gol_SetCell(1, 1, true);
-	//
-	// Gol_SetBlock(10, 10, 20, 30);
-	// Gol_SetBlock(80, 100, 90, 110);
 	return true;
 }
 
@@ -35,7 +26,6 @@ void Gol_Deinit(void)
 
 void Gol_Update(void)
 {
-	// toggleLed();
 	for (uint8_t x = 0; x < GOL_WIDTH; x++)
 	{
 		for (uint8_t y = 0; y < GOL_HEIGHT; y++)
@@ -74,7 +64,10 @@ void Gol_Update(void)
 	golContext.currentBoard = golContext.nextBoard;
 	golContext.nextBoard = tmp;
 
-	// Gol_SpawnBlockByChance();
+	if (golContext.autoBlocks)
+	{
+		Gol_SpawnRandomBlockByChance();
+	}
 }
 
 void Gol_Draw(void)
@@ -102,7 +95,14 @@ void Gol_Stop(void)
 
 void Gol_ButtonInput(Button_e b, ButtonGesture_e g)
 {
-	Gol_SpawnRandomBlock();
+	if (g == GESTURE_DOUBLE_TAP)
+	{
+		golContext.autoBlocks != golContext.autoBlocks;
+	}
+	else
+	{
+		Gol_SpawnRandomBlock();
+	}
 }
 
 uint8_t Gol_GetAliveNeighbors(uint8_t x, uint8_t y)
@@ -166,21 +166,18 @@ void Gol_SetBlock(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 
 void Gol_SpawnRandomBlock(void)
 {
-	uint8_t x = rand() % GOL_WIDTH;
-	uint8_t y = rand() % GOL_HEIGHT;
-	uint8_t w = rand() % (GOL_WIDTH-x);
-	uint8_t h = rand() % (GOL_HEIGHT-y);
+	uint32_t randNum = get_rand_32();
+	uint8_t x = * ((uint8_t *) &randNum) % GOL_WIDTH;
+	uint8_t y = * ((uint8_t *) &randNum + 1) % GOL_HEIGHT;
+	uint8_t w = * ((uint8_t *) &randNum + 2) % (GOL_WIDTH-x);
+	uint8_t h = * ((uint8_t *) &randNum + 3) % (GOL_HEIGHT-y);
 	Gol_SetBlock(x, y, w, h);
 }
 
 void Gol_SpawnRandomBlockByChance(void)
 {
-	if (!GOL_SPAWN_BLOCKS)
-	{
-		return;
-	}
-	uint8_t roll = rand() % 100;
-	if (roll <= GOL_SPAWN_BLOCK_CHANCE)
+	uint32_t roll = get_rand_32() % 100;
+	if (100 - GOL_SPAWN_BLOCK_CHANCE < roll)
 	{
 		Gol_SpawnRandomBlock();
 	}
