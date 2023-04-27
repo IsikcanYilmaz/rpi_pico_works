@@ -8,8 +8,6 @@
 #include "oled_manager.h"
 // #include "GUI_Paint.h"
 #include "paint.h"
-#include "game_of_life.h"
-#include "screen_saver.h"
 #include "tcp_recv_picture/tcp_recv_picture.h"
 
 UserCommand_t userCommands[] = {

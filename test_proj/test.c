@@ -6,8 +6,6 @@
 #include "usr_input.h"
 #include "wifi.h"
 #include "oled_manager.h"
-#include "game_of_life.h"
-#include "screen_saver.h"
 #include "gui_manager.h"
 #include "button.h"
 
