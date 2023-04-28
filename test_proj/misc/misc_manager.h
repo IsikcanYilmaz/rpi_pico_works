@@ -11,7 +11,7 @@ typedef enum MiscIdx_e_
 	MISC_PICTURE,
 	MISC_WIFI_SCAN,
 	MISC_TEST,
-	MISC_UTIL,
+	// MISC_UTIL,
 	MISC_MAX,
 } MiscIdx_e;
 

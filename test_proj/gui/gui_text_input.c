@@ -46,7 +46,6 @@ void GuiTextInput_Draw(GuiTextInput_t *t)
 		: ((t->alphabetLen) + (t->cursor - GUI_LIST_NUM_VISIBLE_INPUT_CHARS/2));
 	uint8_t drawCharEndIdx = t->cursor + (GUI_LIST_NUM_VISIBLE_INPUT_CHARS/2) % t->alphabetLen; 
 	uint8_t drawCharIdx = drawCharBeginIdx;
-	printf("begin %d cursor %d\n", drawCharBeginIdx, t->cursor); 
 	for (uint8_t i = 0; i < GUI_LIST_NUM_VISIBLE_INPUT_CHARS; i++)
 	{
 		if (drawCharIdx == t->cursor)
@@ -88,9 +87,17 @@ void GuiTextInput_TakeActionInput(GuiTextInput_t *t, GuiItemActions_e a)
 			t->inputLen--;
 			break;
 		}
-		case GUI_ITEM_ALT1:
+		case GUI_ITEM_ACTION_ALT1:
 		{
 			t->upper = !t->upper;
+			break;
+		}
+		case GUI_ITEM_ACTION_EXIT:
+		{
+			if (t->exitedCallback)
+			{
+				t->exitedCallback();
+			}
 			break;
 		}
 		default:
@@ -134,10 +141,11 @@ GuiItemActions_e GuiTextInput_DefaultButtonMap(Button_e b, ButtonGesture_e g)
 	{
 		if (b == BUTTON_0)
 		{
-			guiItemAction = GUI_ITEM_ALT1;
+			guiItemAction = GUI_ITEM_ACTION_ALT1;
 		}
 		else if (b == BUTTON_1)
 		{
+			guiItemAction = GUI_ITEM_ACTION_EXIT;
 		}
 	}
 	return guiItemAction;
