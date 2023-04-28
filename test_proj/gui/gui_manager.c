@@ -82,29 +82,6 @@ void GuiMan_StopPollTimer(void)
 	cancel_repeating_timer(&(guiManContext.guiManUpdateTimer));
 }
 
-GuiItemActions_e GuiMan_ButtonInputToGuiAction(Button_e b, ButtonGesture_e g)
-{
-	GuiItemActions_e guiAction = GUI_ITEM_ACTION_MAX;
-	// map the button gesture to a gui item action and pass it on
-	if (b == BUTTON_0 && g == GESTURE_SINGLE_TAP)
-	{
-		guiAction = GUI_ITEM_ACTION_UP;
-	}
-	else if (b == BUTTON_1 && g == GESTURE_SINGLE_TAP)
-	{
-		guiAction = GUI_ITEM_ACTION_DOWN;
-	}
-	else if (b == BUTTON_0 && g == GESTURE_DOUBLE_TAP)
-	{
-		guiAction = GUI_ITEM_ACTION_EXIT;
-	}
-	else if (b == BUTTON_1 && g == GESTURE_DOUBLE_TAP)
-	{
-		guiAction = GUI_ITEM_ACTION_SELECT;
-	}
-	return guiAction;
-}
-
 void GuiMan_TakeButtonInput(Button_e b, ButtonGesture_e g)
 {
 	if (g == GESTURE_SINGLE_TAP && b == BUTTON_BOTH)
@@ -116,7 +93,7 @@ void GuiMan_TakeButtonInput(Button_e b, ButtonGesture_e g)
 	// If the gui is on, process button action and pass it
 	if (guiManContext.inFocus)
 	{
-		GuiItemActions_e guiAction = GuiMan_ButtonInputToGuiAction(b, g);
+		GuiItemActions_e guiAction = GuiList_DefaultButtonMap(b, g);
 		GuiList_TakeActionInput(&guiManContext.programListBox, guiAction);
 		return;
 	}
@@ -135,38 +112,4 @@ void GuiMan_TakeButtonInput(Button_e b, ButtonGesture_e g)
 		Misc_TakeButtonInput(b, g);
 		return;
 	}	
-
-	// if (g == GESTURE_SINGLE_TAP)
-	// {
-	// 	if (b == BUTTON_0)
-	// 	{
-	// 		guiManContext.programSelectionIdx -= 1;
-	// 		if (guiManContext.programSelectionIdx >= Misc_GetNumPrograms())
-	// 		{
-	// 			guiManContext.programSelectionIdx = Misc_GetNumPrograms() - 1;
-	// 		}
-	// 	}
-	// 	else if (b == BUTTON_1)
-	// 	{
-	// 		guiManContext.programSelectionIdx += 1;
-	// 		if (guiManContext.programSelectionIdx >= Misc_GetNumPrograms())
-	// 		{
-	// 			guiManContext.programSelectionIdx = 0;
-	// 		}
-	// 	}
-	// }
-	// 
-	// if (g == GESTURE_DOUBLE_TAP)
-	// {
-	// 	if (b == BUTTON_0)
-	// 	{
-	// 		Misc_StopProgram();
-	// 		GuiMan_Start();
-	// 	}
-	// 	else if (b == BUTTON_1)
-	// 	{
-	// 		GuiMan_Stop();
-	// 		Misc_StartProgram(guiManContext.programSelectionIdx, NULL);
-	// 	}
-	// }
 }

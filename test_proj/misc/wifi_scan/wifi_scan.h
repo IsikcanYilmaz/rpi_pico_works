@@ -10,6 +10,7 @@
 #include "gui_manager.h"
 #include "gui_list.h"
 #include "gui_textbox.h"
+#include "gui_text_input.h"
 
 #define WIFI_SCAN_NO_SSID_SELECTED 0xffff
 #define WIFI_SCAN_PERIOD_MS 10000
@@ -23,6 +24,7 @@ typedef struct WifiScanContext_s_
 	uint64_t tsSinceLastScan;
 	GuiList_t wifiListbox;
 	GuiTextbox_t wifiInfoTextbox;
+	GuiTextInput_t wifiPwInputBox;
 	char wifiInfoStringBuf[WIFI_SCAN_INFO_STR_LEN];
 	uint16_t knownNumScanRecords;
 } WifiScanContext_s;

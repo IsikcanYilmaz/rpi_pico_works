@@ -176,3 +176,26 @@ void GuiList_TakeActionInput(GuiList_t *l, GuiItemActions_e a)
 			}
 	}
 }
+
+GuiItemActions_e GuiList_DefaultButtonMap(Button_e b, ButtonGesture_e g)
+{
+	GuiItemActions_e guiAction = GUI_ITEM_ACTION_MAX;
+	// map the button gesture to a gui item action and pass it on
+	if (b == BUTTON_0 && g == GESTURE_SINGLE_TAP)
+	{
+		guiAction = GUI_ITEM_ACTION_UP;
+	}
+	else if (b == BUTTON_1 && g == GESTURE_SINGLE_TAP)
+	{
+		guiAction = GUI_ITEM_ACTION_DOWN;
+	}
+	else if (b == BUTTON_0 && g == GESTURE_DOUBLE_TAP)
+	{
+		guiAction = GUI_ITEM_ACTION_EXIT;
+	}
+	else if (b == BUTTON_1 && g == GESTURE_DOUBLE_TAP)
+	{
+		guiAction = GUI_ITEM_ACTION_SELECT;
+	}
+	return guiAction;
+}

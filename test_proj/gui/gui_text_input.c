@@ -15,8 +15,20 @@ GuiTextInput_t GuiTextInput_Create(void (*exitedCallback)(void))
 	t.alphabetLen = strlen(alphabet);
 	t.upper = false;
 	memset(t.buf, 0x00, GUI_TEXT_INPUT_MAX_LEN + 1);
-	memset(t.infoTextBuf, 0x00, GUI_TEXT_INFO_TEXT_MAX_LEN + 1);
+	GuiTextInput_ClearBuf(&t);
+	GuiTextInput_ClearInfoText(&t);
 	return t;
+}
+
+void GuiTextInput_ClearBuf(GuiTextInput_t *t)
+{
+	memset(t->buf, 0x00, GUI_TEXT_INPUT_MAX_LEN + 1);
+	t->inputLen = 0;
+}
+
+void GuiTextInput_ClearInfoText(GuiTextInput_t *t)
+{
+	memset(t->infoTextBuf, 0x00, GUI_TEXT_INFO_TEXT_MAX_LEN + 1);
 }
 
 void GuiTextInput_Update(GuiTextInput_t *t)
@@ -26,6 +38,7 @@ void GuiTextInput_Update(GuiTextInput_t *t)
 
 void GuiTextInput_Draw(GuiTextInput_t *t)
 {
+	static bool cursorVisible = true;
 	// Draw Exterior frame
 	OledMan_DrawRectangle(0, 0, 127, 63, 0);
 
@@ -38,7 +51,7 @@ void GuiTextInput_Draw(GuiTextInput_t *t)
 	{
 		OledMan_DrawChar(2 + GUI_LIST_CHAR_PIX_W * i, GUI_TEXT_INPUT_STRING_Y_LOC, t->buf[i]);
 	}
-	OledMan_DrawChar(2 + GUI_LIST_CHAR_PIX_W * (t->inputLen), GUI_TEXT_INPUT_STRING_Y_LOC + 1, '_');
+	if (cursorVisible) OledMan_DrawChar(2 + GUI_LIST_CHAR_PIX_W * (t->inputLen), GUI_TEXT_INPUT_STRING_Y_LOC + 1, '_');
 
 	// Draw char selection
 	uint8_t drawCharBeginIdx = (t->cursor - (GUI_LIST_NUM_VISIBLE_INPUT_CHARS/2) >= 0) 
@@ -55,6 +68,7 @@ void GuiTextInput_Draw(GuiTextInput_t *t)
 		OledMan_DrawChar(2 + GUI_LIST_CHAR_PIX_W * i, GUI_TEXT_INPUT_SELECTOR_Y_LOC, (t->upper) ? toupper(alphabet[drawCharIdx]) : alphabet[drawCharIdx]);
 		drawCharIdx = (drawCharIdx + 1) % t->alphabetLen;
 	}
+	// cursorVisible = !cursorVisible;
 }
 
 void GuiTextInput_TakeActionInput(GuiTextInput_t *t, GuiItemActions_e a)

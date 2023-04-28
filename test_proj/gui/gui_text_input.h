@@ -36,5 +36,7 @@ void GuiTextInput_TakeActionInput(GuiTextInput_t *t, GuiItemActions_e a);
 void GuiTextInput_SetString(GuiTextInput_t *t, char *string);
 GuiItemActions_e GuiTextInput_DefaultButtonMap(Button_e b, ButtonGesture_e g);
 void GuiTextInput_SetInfoText(GuiTextInput_t *t, char *string);
+void GuiTextInput_ClearBuf(GuiTextInput_t *t);
+void GuiTextInput_ClearInfoText(GuiTextInput_t *t);
 
 #endif

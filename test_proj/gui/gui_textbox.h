@@ -10,12 +10,13 @@ typedef struct GuiTextbox_t_
 	bool inFocus;
 	char *string;
 	uint16_t cursor;
-	void (*exitedCallback)(void);
+	void (*exitedCallback)(bool ok);
 } GuiTextbox_t;
 
-GuiTextbox_t GuiTextbox_Create(char *string, void (*exitedCallback)(void));
+GuiTextbox_t GuiTextbox_Create(char *string, void (*exitedCallback)(bool ok));
 void GuiTextbox_Update(GuiTextbox_t *t);
 void GuiTextbox_Draw(GuiTextbox_t *t);
 void GuiTextbox_TakeActionInput(GuiTextbox_t *t, GuiItemActions_e a);
 void GuiTextbox_SetString(GuiTextbox_t *t, char *string);
+GuiItemActions_e GuiTextbox_DefaultButtonMap(Button_e b, ButtonGesture_e g);
 #endif

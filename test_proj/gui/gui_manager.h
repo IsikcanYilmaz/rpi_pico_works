@@ -28,5 +28,4 @@ void GuiMan_Stop(void);
 void GuiMan_StartPollTimer(void);
 void GuiMan_StopPollTimer(void);
 void GuiMan_TakeButtonInput(Button_e b, ButtonGesture_e g);
-GuiItemActions_e GuiMan_ButtonInputToGuiAction(Button_e b, ButtonGesture_e g);
 #endif

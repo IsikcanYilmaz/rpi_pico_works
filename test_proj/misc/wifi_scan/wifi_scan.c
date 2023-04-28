@@ -38,10 +38,30 @@ static void WifiScan_GuiListExitedCallback(void)
 {
 }
 
-static void WifiScan_GuiTextboxExitedCallback(void)
+static void WifiScan_GuiTextboxExitedCallback(bool ok)
 {
-	wifiScanContext.wifiListbox.inFocus = true;
 	wifiScanContext.wifiInfoTextbox.inFocus = false;
+	if (ok)
+	{
+		wifiScanContext.wifiListbox.inFocus = true;
+	}
+	else
+	{
+		wifiScanContext.wifiPwInputBox.inFocus = true;
+	}
+}
+
+static void WifiScan_GuiInputBoxExitedCallback(void)
+{
+	WifiAccessPoint_s* r = Wifi_GetScanRecordByIdx(wifiScanContext.wifiListbox.cursor);
+	printf("Connecting to %s pw %s\n", r->ssid, wifiScanContext.wifiPwInputBox.buf);
+	snprintf(wifiScanContext.wifiInfoStringBuf, WIFI_SCAN_INFO_STR_LEN, "Connecting to %s pw %s", r->ssid, wifiScanContext.wifiPwInputBox.buf);
+	GuiTextbox_Draw(&wifiScanContext.wifiInfoTextbox);
+	Wifi_Connect(r->ssid, wifiScanContext.wifiPwInputBox.buf);
+	// GuiTextInput_ClearBuf(&wifiScanContext.wifiPwInputBox);
+	wifiScanContext.wifiInfoTextbox.inFocus = false;
+	wifiScanContext.wifiPwInputBox.inFocus = false;
+	wifiScanContext.wifiListbox.inFocus = true;
 }
 
 bool WifiScan_Init(void *arg)
@@ -55,6 +75,8 @@ bool WifiScan_Init(void *arg)
 	wifiScanContext.knownNumScanRecords = 0;
 	wifiScanContext.wifiListbox = GuiList_Create(NULL, 0, WifiScan_GuiListItemSelectedCallback, WifiScan_GuiListExitedCallback);
 	wifiScanContext.wifiInfoTextbox = GuiTextbox_Create(wifiScanContext.wifiInfoStringBuf, WifiScan_GuiTextboxExitedCallback);
+	wifiScanContext.wifiPwInputBox = GuiTextInput_Create(WifiScan_GuiInputBoxExitedCallback);
+	GuiTextInput_SetInfoText(&wifiScanContext.wifiPwInputBox, "Password:");
 	memset(wifiScanContext.wifiInfoStringBuf, 0x00, WIFI_SCAN_INFO_STR_LEN);
 	
 	wifiScanContext.wifiListbox.inFocus = true;
@@ -93,6 +115,10 @@ void WifiScan_Draw(void)
 	{
 		GuiTextbox_Draw(&wifiScanContext.wifiInfoTextbox);
 	}
+	else if (wifiScanContext.wifiPwInputBox.inFocus)
+	{
+		GuiTextInput_Draw(&wifiScanContext.wifiPwInputBox);
+	}
 	else
 	{
 		printf("wifi scan no gui item in focus. this shouldnt happen!\n");
@@ -115,13 +141,17 @@ void WifiScan_ButtonInput(Button_e b, ButtonGesture_e g)
 		return;
 	}
 
-	GuiItemActions_e guiItemAction = GuiMan_ButtonInputToGuiAction(b, g);
+	GuiItemActions_e guiItemAction = GUI_ITEM_ACTION_MAX;
 	if (wifiScanContext.wifiListbox.inFocus) // TODO bad lookin
 	{
-		GuiList_TakeActionInput(&(wifiScanContext.wifiListbox), guiItemAction);
+		GuiList_TakeActionInput(&(wifiScanContext.wifiListbox), GuiList_DefaultButtonMap(b, g));
 	}
 	else if (wifiScanContext.wifiInfoTextbox.inFocus)
 	{
-		GuiTextbox_TakeActionInput(&(wifiScanContext.wifiInfoTextbox), guiItemAction);
+		GuiTextbox_TakeActionInput(&(wifiScanContext.wifiInfoTextbox), GuiTextbox_DefaultButtonMap(b, g));
+	}
+	else if (wifiScanContext.wifiPwInputBox.inFocus)
+	{
+		GuiTextInput_TakeActionInput(&(wifiScanContext.wifiPwInputBox), GuiTextInput_DefaultButtonMap(b, g));
 	}
 }
