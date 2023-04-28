@@ -8,6 +8,7 @@ target_sources(misc PRIVATE
 							screen_saver/screen_saver.c
 							tamagotchi/tamagotchi.c
 							wifi_scan/wifi_scan.c
+							misc_test/misc_test.c
 							)
 target_include_directories(misc PRIVATE
 													${CMAKE_CURRENT_LIST_DIR}
@@ -24,6 +25,7 @@ target_include_directories(misc PRIVATE
 													wifi_scan/
 													screen_saver/
 													tamagotchi/
+													misc_test/
 										)
 target_link_libraries(misc PRIVATE
 											pico_stdlib

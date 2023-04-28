@@ -5,6 +5,7 @@
 #include "game_of_life.h"
 #include "wifi_scan.h"
 #include "picture.h"
+#include "misc_test.h"
 #include "usr_commands.h"
 #include <stdio.h>
 #include <string.h>
@@ -13,6 +14,7 @@
 #define MISC_GAME_OF_LIFE_ENABLED 1
 #define MISC_PICTURE_ENABLED 1
 #define MISC_WIFI_SCAN_ENABLED 1
+#define MISC_TEST_ENABLED 1
 
 MiscProgram_t miscPrograms[] = 
 {
@@ -70,6 +72,20 @@ MiscProgram_t miscPrograms[] =
 		.buttonInput = WifiScan_ButtonInput,
 		.isRunning = false,
 		.updatePeriodMs = WIFI_SCAN_UPDATE_PERIOD_MS,
+		},
+	#endif
+	#if MISC_TEST_ENABLED
+	[MISC_TEST] = {
+		.name = "misc_test",
+		.init = MiscTest_Init,
+		.deinit = MiscTest_Deinit,
+		.start = MiscTest_Start,
+		.stop = MiscTest_Stop,
+		.update = MiscTest_Update,
+		.draw = MiscTest_Draw,
+		.buttonInput = MiscTest_ButtonInput,
+		.isRunning = false,
+		.updatePeriodMs = MISC_TEST_UPDATE_PERIOD_MS,
 		},
 	#endif
 };
