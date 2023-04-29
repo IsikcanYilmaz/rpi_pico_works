@@ -140,22 +140,32 @@ static int Wifi_ScanResult(void *env, const cyw43_ev_scan_result_t *result) {
 	return 0;
 }
 
-static bool Wifi_Poll(struct repeating_timer *t)
+ bool Wifi_Poll(struct repeating_timer *t)
 {
 	// first poll to see the wifi status. then
-	// we'll poll the currently running routine if it wants
+	// check if we have any pending requests
 	bool pollRet = true;
+	if (wifiContext.connectRequested)
+	{
+		pollRet |= Wifi_Connect(wifiContext.reqConnectSsid, wifiContext.reqConnectPw);
+		wifiContext.connectRequested = false;
+	}
+
+	// we'll poll the currently running routine if it wants
 	if (wifiContext.currentRoutineIdx < WIFI_ROUTINE_NONE)
 	{
 		if (wifiContext.currentRoutine->poll == NULL)
 		{
-			return true;
+			pollRet |= true;
 		}
-		pollRet = wifiContext.currentRoutine->poll();
-		if (!pollRet)
+		else
 		{
-			printf("Inet routine %s:%d failed to poll!\n", wifiContext.currentRoutine->name, wifiContext.currentRoutineIdx); 
-		}
+			pollRet = wifiContext.currentRoutine->poll();
+		}	
+	}
+	if (!pollRet)
+	{
+		printf("Wifi poll failed at some point!\n"); 
 	}
 	return pollRet;
 }
@@ -163,6 +173,7 @@ static bool Wifi_Poll(struct repeating_timer *t)
 void Wifi_Init(void)
 {
 	wifiContext.isConnected = false;
+	wifiContext.connectRequested = false;
 	wifiContext.mode = WIFI_MODE_NONE;
 	wifiContext.currentRoutineIdx = WIFI_ROUTINE_NONE;
 	wifiContext.currentRoutine = &wifiRoutines[WIFI_ROUTINE_NONE];
@@ -258,7 +269,7 @@ bool Wifi_Connect(char *ssid, char *pass)
 		printf("Wrong mode for connection %d:%s\n", wifiContext.mode, wifiModeStrings[wifiContext.mode]);
 		return false;
 	}
-	printf("Attempting to connect to AP SSID:%s\n", ssid);
+	printf("Attempting to connect to AP SSID:%s PASS:%s\n", ssid, pass);
 	if (cyw43_arch_wifi_connect_timeout_ms(ssid, pass, CYW43_AUTH_WPA2_AES_PSK, WIFI_CONNECT_TIMEOUT_MS)) 
 	{
 		printf("Failed to connect!\n");
@@ -276,6 +287,13 @@ bool Wifi_Connect(char *ssid, char *pass)
 		wifiContext.isConnected = true;
 	}
 	return wifiContext.connected;
+}
+
+void Wifi_RequestConnect(char *ssid, char *pass)
+{
+	strncpy(wifiContext.reqConnectSsid, ssid, WIFI_AP_SSID_MAX_LEN);
+	strncpy(wifiContext.reqConnectPw, pass, WIFI_AP_PASS_MAX_LEN);
+	wifiContext.connectRequested = true;
 }
 
 bool Wifi_UnsetCurrentRoutine(void)

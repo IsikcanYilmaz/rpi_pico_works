@@ -70,12 +70,17 @@ typedef struct WifiContext_s
 	WifiRoutine_s *currentRoutine;
 	WifiRoutine_e currentRoutineIdx;
 	WifiAccessPoint_s connectedAp;
+	bool connectRequested;
+	char reqConnectSsid[WIFI_AP_SSID_MAX_LEN];
+	char reqConnectPw[WIFI_AP_PASS_MAX_LEN];
 	bool connected;
 	cyw43_t *cyw43_state;
 } WifiContext_t;
 
 void Wifi_Init(void);
 void Wifi_Deinit(void);
+bool Wifi_Poll(struct repeating_timer *t);
+void Wifi_RequestConnect(char *ssid, char *pass);
 WifiRoutine_s *Wifi_GetRoutinePtrByIdx(WifiRoutine_e r); // todo this chould be a static
 bool Wifi_SetMode(WifiMode_e m);
 bool Wifi_UnsetCurrentMode(void);

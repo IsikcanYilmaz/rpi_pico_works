@@ -37,6 +37,7 @@ int main() {
 	while(1)
 	{
 		UserInput_Service();
+		Wifi_Poll(NULL);
 	}
 	return 0;
 }

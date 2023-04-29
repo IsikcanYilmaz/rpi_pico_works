@@ -57,8 +57,8 @@ static void WifiScan_GuiInputBoxExitedCallback(void)
 	printf("Connecting to %s pw %s\n", r->ssid, wifiScanContext.wifiPwInputBox.buf);
 	snprintf(wifiScanContext.wifiInfoStringBuf, WIFI_SCAN_INFO_STR_LEN, "Connecting to %s pw %s", r->ssid, wifiScanContext.wifiPwInputBox.buf);
 	GuiTextbox_Draw(&wifiScanContext.wifiInfoTextbox);
-	Wifi_Connect(r->ssid, wifiScanContext.wifiPwInputBox.buf);
-	// GuiTextInput_ClearBuf(&wifiScanContext.wifiPwInputBox);
+	char tmpbuf[wifiScanContext.wifiPwInputBox.inputLen];
+	Wifi_RequestConnect(r->ssid, wifiScanContext.wifiPwInputBox.buf);
 	wifiScanContext.wifiInfoTextbox.inFocus = false;
 	wifiScanContext.wifiPwInputBox.inFocus = false;
 	wifiScanContext.wifiListbox.inFocus = true;
