@@ -54,11 +54,10 @@ static void WifiScan_GuiTextboxExitedCallback(bool ok)
 static void WifiScan_GuiInputBoxExitedCallback(void)
 {
 	WifiAccessPoint_s* r = Wifi_GetScanRecordByIdx(wifiScanContext.wifiListbox.cursor);
-	printf("Connecting to %s pw %s\n", r->ssid, wifiScanContext.wifiPwInputBox.buf);
 	snprintf(wifiScanContext.wifiInfoStringBuf, WIFI_SCAN_INFO_STR_LEN, "Connecting to %s pw %s", r->ssid, wifiScanContext.wifiPwInputBox.buf);
-	GuiTextbox_Draw(&wifiScanContext.wifiInfoTextbox);
 	char tmpbuf[wifiScanContext.wifiPwInputBox.inputLen];
 	Wifi_RequestConnect(r->ssid, wifiScanContext.wifiPwInputBox.buf);
+	GuiTextInput_ClearBuf(&wifiScanContext.wifiPwInputBox);
 	wifiScanContext.wifiInfoTextbox.inFocus = false;
 	wifiScanContext.wifiPwInputBox.inFocus = false;
 	wifiScanContext.wifiListbox.inFocus = true;
@@ -88,12 +87,6 @@ void WifiScan_Deinit(void)
 
 void WifiScan_Update(void)
 {
-	// if ((get_absolute_time() - wifiScanContext.tsSinceLastScan)/1000 >= WIFI_SCAN_PERIOD_MS)
-	// {
-	// 	Wifi_Scan();
-	// 	wifiScanContext.tsSinceLastScan = get_absolute_time();
-	// }
-	
 	if (wifiScanContext.knownNumScanRecords != Wifi_GetNumScanRecords())
 	{
 		GuiList_SetStrings(&wifiScanContext.wifiListbox, Wifi_GetStringsList(), Wifi_GetNumScanRecords());
@@ -103,9 +96,6 @@ void WifiScan_Update(void)
 
 void WifiScan_Draw(void)
 {
-	// cyw43_ev_scan_result_t* r = Wifi_GetScanRecordByIdx(wifiScanContext.ssidSelectionIdx);
-	// if (r) WifiScan_PopulateWifiInfoString(Wifi_GetScanRecordByIdx(wifiScanContext.ssidSelectionIdx));
-
 	OledMan_ClearBuf();
 	if (wifiScanContext.wifiListbox.inFocus)
 	{

@@ -14,7 +14,7 @@
 #define MISC_GAME_OF_LIFE_ENABLED 1
 #define MISC_PICTURE_ENABLED 1
 #define MISC_WIFI_SCAN_ENABLED 1
-#define MISC_TEST_ENABLED 1
+#define MISC_TEST_ENABLED 0
 
 MiscProgram_t miscPrograms[] = 
 {
