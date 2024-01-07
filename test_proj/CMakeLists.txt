@@ -23,7 +23,7 @@ add_subdirectory(inet/)
 
 # rest of your project
 add_executable(test_proj
-	test.c 
+	main.c 
 	test_functionality.c
 	usr_input.c 
 	usr_commands.c 
