@@ -3,6 +3,8 @@
 #define ASSERT_ARGS(argcExpected) {if (argc < argcExpected) {printf("Bad args! argc %d expected %d\n", argc, argcExpected); return;}}
 #define BAD_ARG() {printf("Bad arg!\n"); UserCommand_PrintCommand(argc, argv);}
 
+#include <stdint.h>
+
 typedef struct UserCommand_s
 {
 	char *command;

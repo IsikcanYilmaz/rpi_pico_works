@@ -12,7 +12,7 @@
 
 #define SS_STR_MAX 20
 
-#define SCREEN_MIN_X 2
+#define SCREEN_MIN_X 5
 #define SCREEN_MAX_X 127
 #define SCREEN_MIN_Y 2
 #define SCREEN_MAX_Y 63

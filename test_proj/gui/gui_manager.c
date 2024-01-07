@@ -37,9 +37,11 @@ void GuiMan_Init(void)
 		
 	guiManContext.programSelectionIdx = 0;
 	char *programNames[Misc_GetNumPrograms()];
+	printf("NumPrograms %d\n", Misc_GetNumPrograms());
 	for (uint16_t i; i < Misc_GetNumPrograms(); i++)
 	{
 		programNames[i] = Misc_GetProgramPtrByIdx(i)->name;
+		printf("%s %d\n", programNames[i], i);
 	}
 
 	guiManContext.programListBox = GuiList_Create(programNames, Misc_GetNumPrograms(), GuiMan_ProgramSelectedCallback, NULL);

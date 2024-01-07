@@ -264,7 +264,7 @@ uint16_t Misc_GetNumPrograms(void)
 	return sizeof(miscPrograms)/sizeof(miscPrograms[0]);
 }
 
-MiscProgram_t* Misc_GetProgramPtrByIdx(MiscIdx_e i)
+MiscProgram_t* Misc_GetProgramPtrByIdx(uint16_t i)
 {
 	if (i >= MISC_MAX)
 	{

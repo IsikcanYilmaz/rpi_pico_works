@@ -46,7 +46,7 @@ void Misc_TimerStart(void);
 void Misc_TimerStop(void);
 void Misc_PrintPrograms(void);
 uint16_t Misc_GetNumPrograms(void);
-MiscProgram_t* Misc_GetProgramPtrByIdx(MiscIdx_e i);
+MiscProgram_t* Misc_GetProgramPtrByIdx(uint16_t i);
 bool Misc_IsProgramRunning(void);
 MiscIdx_e Misc_GetCurrentRunningProgramIdx(void);
 #endif
