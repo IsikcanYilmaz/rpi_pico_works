@@ -30,9 +30,10 @@ GuiList_t GuiList_Create(char **strings, uint16_t numItems, void (*itemSelectedC
 	l.itemSelectedCallback = itemSelectedCallback;
 	l.exitedCallback = exitedCallback;
 	l.drawIndexBegin = 0;
-	l.drawIndexEnd = (numItems >= GUI_LIST_MAX_VISIBLE_ITEMS) ? (GUI_LIST_MAX_VISIBLE_ITEMS-1) : (numItems-1);
+	l.drawIndexEnd = GUI_LIST_MAX_VISIBLE_ITEMS-1;
 	GuiList_SetStrings(&l, strings, numItems);
 	GuiList_CalculateRenderItems(&l);
+	// printf("NEW LIST C:%d, BEGIN:%d, END %d\n", l.cursor, l.drawIndexBegin, l.drawIndexEnd);
 	return l;
 }
 
