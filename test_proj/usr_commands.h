@@ -4,6 +4,7 @@
 #define BAD_ARG() {printf("Bad arg!\n"); UserCommand_PrintCommand(argc, argv);}
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef struct UserCommand_s
 {
@@ -15,7 +16,7 @@ typedef struct UserCommand_s
 extern UserCommand_t userCommands[];
 
 void UserCommand_ProcessInputLine(char *buf);
-void UserCommand_ProcessCommand(uint16_t argc, char **argv);
+bool UserCommand_ProcessCommand(uint16_t argc, char **argv);
 void UserCommand_PrintCommand(uint16_t argc, char **argv);
 void UserCommand_Reset(uint8_t argc, char **argv);
 void UserCommand_Test(uint8_t argc, char **argv);

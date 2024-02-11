@@ -30,9 +30,9 @@ GuiList_t GuiList_Create(char **strings, uint16_t numItems, void (*itemSelectedC
 	l.itemSelectedCallback = itemSelectedCallback;
 	l.exitedCallback = exitedCallback;
 	l.drawIndexBegin = 0;
-	l.drawIndexEnd = 0;
-	GuiList_CalculateRenderItems(&l);
+	l.drawIndexEnd = (numItems >= GUI_LIST_MAX_VISIBLE_ITEMS) ? (GUI_LIST_MAX_VISIBLE_ITEMS-1) : (numItems-1);
 	GuiList_SetStrings(&l, strings, numItems);
+	GuiList_CalculateRenderItems(&l);
 	return l;
 }
 
@@ -198,4 +198,9 @@ GuiItemActions_e GuiList_DefaultButtonMap(Button_e b, ButtonGesture_e g)
 		guiAction = GUI_ITEM_ACTION_SELECT;
 	}
 	return guiAction;
+}
+
+uint16_t GuiList_GetNumItems(GuiList_t *l)
+{
+	return l->numItems;
 }

@@ -2,6 +2,7 @@
 #include "oled_manager.h"
 #include "pico/stdlib.h"
 #include "hardware/timer.h"
+#include "wifi.h"
 
 WifiScanContext_s wifiScanContext;
 
@@ -87,11 +88,13 @@ void WifiScan_Deinit(void)
 
 void WifiScan_Update(void)
 {
-	if (wifiScanContext.knownNumScanRecords != Wifi_GetNumScanRecords())
+	uint16_t numScanRecords = Wifi_GetNumScanRecords();
+	if (wifiScanContext.knownNumScanRecords != numScanRecords)
 	{
-		GuiList_SetStrings(&wifiScanContext.wifiListbox, Wifi_GetStringsList(), Wifi_GetNumScanRecords());
+		printf("WIFI SCAN GUI CURSOR %d CURR NUMRECODS %d NEW NUMRECORDS %d\n",	wifiScanContext.wifiListbox.cursor, wifiScanContext.knownNumScanRecords, numScanRecords);
+		GuiList_SetStrings(&wifiScanContext.wifiListbox, Wifi_GetStringsList(), numScanRecords);
+		wifiScanContext.knownNumScanRecords = numScanRecords;
 	}
-	wifiScanContext.knownNumScanRecords = Wifi_GetNumScanRecords();
 }
 
 void WifiScan_Draw(void)

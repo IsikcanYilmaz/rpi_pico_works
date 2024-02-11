@@ -18,14 +18,19 @@ static void Main_Init(void)
 {
 	UserInput_Init();
 	printf("UserInput Init\n");
+
 	OledMan_Init();
 	printf("OledMan Init\n");
+
 	Button_Init();
 	printf("Button Init\n");
+
 	GuiMan_Init();
 	printf("GuiMan Init\n");
+
 	Wifi_Init();
 	printf("Wifi Init\n");
+
 	printf("Init complete\n");
 }
 

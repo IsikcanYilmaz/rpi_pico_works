@@ -30,5 +30,6 @@ void GuiList_Draw(GuiList_t *l);
 void GuiList_TakeActionInput(GuiList_t *l, GuiItemActions_e a);
 void GuiList_SetStrings(GuiList_t *l, char **strings, uint16_t numItems);
 void GuiList_SetCursor(GuiList_t *l, uint16_t c);
+uint16_t GuiList_GetNumItems(GuiList_t *l);
 GuiItemActions_e GuiList_DefaultButtonMap(Button_e b, ButtonGesture_e g);
 #endif

@@ -32,7 +32,7 @@ void UserCommand_PrintCommand(uint16_t argc, char **argv)
 	printf("\n");
 }
 
-void UserCommand_ProcessCommand(uint16_t argc, char **argv)
+bool UserCommand_ProcessCommand(uint16_t argc, char **argv)
 {
 	// We have the command and args parsed now. do a lookup to see
 	// which command is entered and call its function
@@ -42,10 +42,11 @@ void UserCommand_ProcessCommand(uint16_t argc, char **argv)
 		{
 			// printf("COMMAND %s argc %d\n", argv[0], argc); // TODO
 			userCommands[i].fn(argc, argv);
-			return;
+			return true;
 		}
 	}
-	printf("Command not found\n");
+	// printf("Command not found\n");
+	return false;
 }
 
 // COMMANDS // 

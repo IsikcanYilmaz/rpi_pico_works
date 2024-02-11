@@ -133,7 +133,11 @@ void UserInput_Service(void)
 	if (commandReady)
 	{
 		UserInput_StopPollTimer();
-		UserCommand_ProcessCommand(usrCommandArgc, usrCommandArgs);
+		bool commandExists = UserCommand_ProcessCommand(usrCommandArgc, usrCommandArgs);
+		if (!commandExists)
+		{
+			printf("Command %s not found\n", usrInputBuf);
+		}
 		commandReady = false;
 		UserInput_StartPollTimer();
 	}

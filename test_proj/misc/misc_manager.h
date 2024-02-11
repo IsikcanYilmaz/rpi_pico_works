@@ -10,7 +10,7 @@ typedef enum MiscIdx_e_
 	MISC_GAME_OF_LIFE,
 	MISC_PICTURE,
 	MISC_WIFI_SCAN,
-	// MISC_TEST,
+	MISC_TEST,
 	// MISC_UTIL,
 	MISC_MAX,
 } MiscIdx_e;
