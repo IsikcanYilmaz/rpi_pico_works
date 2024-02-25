@@ -54,7 +54,7 @@ void GuiMan_Update(void)
 {
 }
 
-void GuiMan_Draw(void)
+void GuiMan_Draw(void) // TODO bad place to keep list of programs
 {
 	OledMan_ClearBuf();
 	GuiList_Draw(&(guiManContext.programListBox));

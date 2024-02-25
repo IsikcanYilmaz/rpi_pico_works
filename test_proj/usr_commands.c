@@ -82,8 +82,8 @@ void UserCommand_Test(uint8_t argc, char **argv)
 
 void UserCommand_GetTime(uint8_t argc, char **argv)
 {
-	uint64_t t = get_absolute_time();
-	printf("time %llu\n", t);
+	uint32_t t = time_us_32()/1000;
+	printf("time %d\n", t);
 }
 
 void UserCommand_LedSet(uint8_t argc, char **argv)

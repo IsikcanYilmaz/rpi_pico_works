@@ -1,20 +1,36 @@
 #include "gui_textbox.h"
+#include "hardware/timer.h"
 #include "oled_manager.h"
 #include <string.h>
 
-GuiTextbox_t GuiTextbox_Create(char *string, void (*exitedCallback)(bool ok))
+/*
+* Creates a "Textbox" structure
+* @param string String to display
+* @param timeoutMs How long to display the message. If 0 there is no timeout
+* @param exitedCallback Callback to call once exit happens. NULL for no callback
+*/
+GuiTextbox_t GuiTextbox_Create(char *string, uint32_t timeoutMs, void (*exitedCallback)(bool ok))
 {
 	GuiTextbox_t ret;
 	ret.inFocus = false;
 	ret.string = string;
 	ret.exitedCallback = exitedCallback;
 	ret.cursor = 0;
+	ret.timeoutMs = timeoutMs;
+	ret.liveUntilMs = timeoutMs + (time_us_32() / 1000);
+	ret.isTimed = (timeoutMs > 0) ? true : false;
+	printf("%s timeout %d liveuntil %d\n", __FUNCTION__, timeoutMs, ret.liveUntilMs);
 	return ret;
 }
 
 void GuiTextbox_Update(GuiTextbox_t *t)
 {
-	//
+	// If this is a timed pop up, check the time. if time out, exit
+	if (t->isTimed && t->liveUntilMs < (time_us_32()/1000))
+	{
+		GuiTextbox_TakeActionInput(t, GUI_ITEM_ACTION_EXIT);
+		t->isTimed = false;
+	}
 }
 
 void GuiTextbox_Draw(GuiTextbox_t *t)

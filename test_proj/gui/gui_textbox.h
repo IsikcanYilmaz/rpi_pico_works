@@ -11,9 +11,12 @@ typedef struct GuiTextbox_t_
 	char *string;
 	uint16_t cursor;
 	void (*exitedCallback)(bool ok);
+	uint32_t timeoutMs;
+	uint32_t liveUntilMs; // TODO remove one of these members
+	bool isTimed;
 } GuiTextbox_t;
 
-GuiTextbox_t GuiTextbox_Create(char *string, void (*exitedCallback)(bool ok));
+GuiTextbox_t GuiTextbox_Create(char *string, uint32_t timeoutMs, void (*exitedCallback)(bool ok));
 void GuiTextbox_Update(GuiTextbox_t *t);
 void GuiTextbox_Draw(GuiTextbox_t *t);
 void GuiTextbox_TakeActionInput(GuiTextbox_t *t, GuiItemActions_e a);
