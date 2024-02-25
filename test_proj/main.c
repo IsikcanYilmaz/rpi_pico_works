@@ -8,6 +8,7 @@
 #include "oled_manager.h"
 #include "gui_manager.h"
 #include "button.h"
+#include "watchdog.h"
 
 #include "access_point/picow_access_point.h"
 
@@ -16,6 +17,8 @@
 
 static void Main_Init(void)
 {
+	bool watchdogReset = Watchdog_CheckReset(); // TODO do something with this 
+
 	UserInput_Init();
 	printf("UserInput Init\n");
 
@@ -30,6 +33,9 @@ static void Main_Init(void)
 
 	Wifi_Init();
 	printf("Wifi Init\n");
+
+	Watchdog_Init();
+	printf("Watchdog Init\n");
 
 	printf("Init complete\n");
 }

@@ -31,6 +31,7 @@ add_executable(test_proj
 	oled_manager.c 
 	button.c 
 	paint.c
+	watchdog.c
 	)
 
 target_include_directories(test_proj PRIVATE
@@ -54,6 +55,7 @@ target_link_libraries(test_proj
 											hardware_irq
 											hardware_pwm
 											hardware_spi
+											# hardware_watchdog
 											# misc
 											misc
 											util
