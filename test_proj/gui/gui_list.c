@@ -111,6 +111,8 @@ void GuiList_Draw(GuiList_t *l)
 			OledMan_SetColor(BLACK);
 			OledMan_DrawString(x, y + 2, name);
 			OledMan_SetColor(WHITE);
+
+			// Cursor rect
 			OledMan_DrawRectangle(5, y + 4, 2, 2, 1);
 		}
 		else
