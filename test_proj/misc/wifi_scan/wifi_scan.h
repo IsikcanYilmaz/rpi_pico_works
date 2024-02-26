@@ -16,6 +16,12 @@
 #define WIFI_SCAN_PERIOD_MS 10000
 #define WIFI_SCAN_INFO_STR_LEN 255
 
+typedef struct WifiKnownAP_s_
+{
+	char *ssid;
+	char *pw;
+} WifiKnownAP_s;
+
 typedef struct WifiScanContext_s_
 {
 	struct repeating_timer wifiScanUpdateTimer;
@@ -24,9 +30,11 @@ typedef struct WifiScanContext_s_
 	uint64_t tsSinceLastScan;
 	GuiList_t wifiListbox;
 	GuiTextbox_t wifiInfoTextbox;
+	GuiTextbox_t wifiConnectStatusTextbox;
 	GuiTextInput_t wifiPwInputBox;
-	char wifiInfoStringBuf[WIFI_SCAN_INFO_STR_LEN];
+	char messageBuffer[WIFI_SCAN_INFO_STR_LEN];
 	uint16_t knownNumScanRecords;
+	bool connecting;
 } WifiScanContext_s;
 
 #define WIFI_SCAN_UPDATE_PERIOD_MS 20

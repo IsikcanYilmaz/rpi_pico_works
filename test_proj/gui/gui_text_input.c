@@ -119,6 +119,7 @@ void GuiTextInput_TakeActionInput(GuiTextInput_t *t, GuiItemActions_e a)
 			break;
 		}
 	}
+	printf("GuiTextInput curr buf %s\n", t->buf);
 }
 
 void GuiTextInput_SetInfoText(GuiTextInput_t *t, char *string)
@@ -163,4 +164,12 @@ GuiItemActions_e GuiTextInput_DefaultButtonMap(Button_e b, ButtonGesture_e g)
 		}
 	}
 	return guiItemAction;
+}
+
+void GuiTextInput_SetString(GuiTextInput_t *t, char *string)
+{
+	memset(t->buf, 0x00, GUI_TEXT_INPUT_MAX_LEN);
+	strcpy(t->buf, string);
+	t->inputLen = strlen(string);
+	printf("GuiTextInput setting string to %s\n", t->buf);
 }

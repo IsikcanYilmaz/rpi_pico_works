@@ -32,6 +32,7 @@ typedef enum WifiRoutine_e_
 	WIFI_ROUTINE_ACCESS_POINT_EXAMPLE,
 	// WIFI_ROUTINE_SCAN,
 	WIFI_ROUTINE_TCP_RECV_PICTURE,
+	WIFI_ROUTINE_UDP_RECV_PICTURE,
 	WIFI_ROUTINE_NONE,
 	WIFI_ROUTINE_MAX,
 } WifiRoutine_e;
@@ -73,7 +74,6 @@ typedef struct WifiContext_s
 	bool connectRequested;
 	char reqConnectSsid[WIFI_AP_SSID_MAX_LEN];
 	char reqConnectPw[WIFI_AP_PASS_MAX_LEN];
-	bool connected;
 	cyw43_t *cyw43_state;
 } WifiContext_t;
 

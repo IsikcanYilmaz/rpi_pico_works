@@ -48,6 +48,15 @@ static WifiRoutine_s wifiRoutines[] = {
 																													.requiredConnection = true,
 																													.updatePeriodMs = TCP_RECV_PICTURE_UPDATE_PERIOD_MS,
 																												},
+	// [WIFI_ROUTINE_UDP_RECV_PICTURE] = 	  (WifiRoutine_s) { .name = "udp_recv_picture",
+	// 																												.init = UdpRecvPicture_Init,
+	// 																												.deinit = UdpRecvPicture_Deinit,
+	// 																												.poll = UdpRecvPicture_Update,
+	// 																												.running = false,
+	// 																												.requiredMode = WIFI_MODE_STATION,
+	// 																												.requiredConnection = true,
+	// 																												.updatePeriodMs = UDP_RECV_PICTURE_UPDATE_PERIOD_MS,
+	// 																											},
 	[WIFI_ROUTINE_NONE] = 								(WifiRoutine_s) { .name = "none",
 																													.init = Wifi_NoneRoutineSanityInit,
 																													.deinit = Wifi_NoneRoutineSanityInit,
@@ -140,7 +149,7 @@ static int Wifi_ScanResult(void *env, const cyw43_ev_scan_result_t *result) {
 	return 0;
 }
 
- bool Wifi_Poll(struct repeating_timer *t)
+bool Wifi_Poll(struct repeating_timer *t)
 {
 	// first poll to see the wifi status. then
 	// check if we have any pending requests
@@ -257,7 +266,7 @@ bool Wifi_Disconnect(void)
 	}
 	else
 	{
-		wifiContext.connected = false;
+		wifiContext.isConnected = false;
 	}
 	return ret == 0;
 }
@@ -286,7 +295,7 @@ bool Wifi_Connect(char *ssid, char *pass)
 		wifiContext.connectedAp.channel = 0;
 		wifiContext.isConnected = true;
 	}
-	return wifiContext.connected;
+	return wifiContext.isConnected;
 }
 
 void Wifi_RequestConnect(char *ssid, char *pass)
@@ -494,4 +503,9 @@ void Wifi_PrintInfo(void)
 		printf("Connected to wifi access point:\n");
 		Wifi_PrintScanResult(&wifiContext.connectedAp);
 	}
+}
+
+bool Wifi_IsConnected(void)
+{
+	return wifiContext.isConnected;
 }

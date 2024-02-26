@@ -5,6 +5,8 @@
 
 /*
 * Creates a "Textbox" structure
+* The misc program needs to periodically call update on this module and handle inFocus. 
+* The timer will be set from the time GuiTextbox_SetInFocus is called
 * @param string String to display
 * @param timeoutMs How long to display the message. If 0 there is no timeout
 * @param exitedCallback Callback to call once exit happens. NULL for no callback
@@ -19,7 +21,7 @@ GuiTextbox_t GuiTextbox_Create(char *string, uint32_t timeoutMs, void (*exitedCa
 	ret.timeoutMs = timeoutMs;
 	ret.liveUntilMs = timeoutMs + (time_us_32() / 1000);
 	ret.isTimed = (timeoutMs > 0) ? true : false;
-	printf("%s timeout %d liveuntil %d\n", __FUNCTION__, timeoutMs, ret.liveUntilMs);
+	// printf("%s timeout %d liveuntil %d isTimed %d\n", __FUNCTION__, timeoutMs, ret.liveUntilMs, ret.isTimed);
 	return ret;
 }
 
@@ -77,6 +79,18 @@ void GuiTextbox_SetString(GuiTextbox_t *t, char *string)
 	t->cursor = 0;
 }
 
+void GuiTextbox_SetInFocus(GuiTextbox_t *t, bool inFocus)
+{
+	// If this is a timed textbox, and we're going in focus, its time to set the time to live field
+	if (t->isTimed && inFocus)
+	{
+		t->liveUntilMs = t->timeoutMs + (time_us_32() / 1000);
+		printf("Setting textbox in focus. liveuntil %d now %d\n", t->liveUntilMs);
+	}
+
+	t->inFocus = inFocus;
+}
+
 GuiItemActions_e GuiTextbox_DefaultButtonMap(Button_e b, ButtonGesture_e g)
 {
 	GuiItemActions_e guiAction = GUI_ITEM_ACTION_MAX;
@@ -98,4 +112,11 @@ GuiItemActions_e GuiTextbox_DefaultButtonMap(Button_e b, ButtonGesture_e g)
 		guiAction = GUI_ITEM_ACTION_SELECT;
 	}
 	return guiAction;
+}
+
+void GuiTextbox_SetTimer(GuiTextbox_t *t, uint32_t timeoutMs)
+{
+	t->timeoutMs = timeoutMs;
+	// ret.liveUntilMs = timeoutMs + (time_us_32() / 1000);
+	t->isTimed = (timeoutMs > 0) ? true : false;
 }
