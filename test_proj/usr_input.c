@@ -113,7 +113,7 @@ static bool UserInput_InputPollTimerCallback(struct repeating_timer_t *t)
 
 void UserInput_StartPollTimer(void)
 {
-	add_repeating_timer_ms(USER_INPUT_POLL_PERIOD_MS, UserInput_InputPollTimerCallback, NULL, &userInputPollTimer);
+	add_repeating_timer_ms(USER_INPUT_POLL_PERIOD_MS, (repeating_timer_callback_t) UserInput_InputPollTimerCallback, NULL, &userInputPollTimer);
 }
 
 void UserInput_StopPollTimer(void)

@@ -32,6 +32,7 @@ void Paint_Init(uint8_t *buf, uint16_t w, uint16_t h);
 void Paint_SetPixel(uint16_t x, uint16_t y, uint8_t val);
 void Paint_Clear(void);
 void Paint_SetFont(sFONT *font);
+void Paint_SetColor(PaintColor_e c);
 
 // Geometry
 void Paint_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
@@ -41,5 +42,7 @@ void Paint_DrawCircle(uint16_t xCenter, uint16_t yCenter, uint16_t r, bool fill)
 // Strings
 void Paint_DrawChar(uint16_t x, uint16_t y, char c);
 void Paint_DrawString(uint16_t x, uint16_t y, char *str);
+
+
 
 #endif

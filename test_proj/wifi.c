@@ -25,8 +25,9 @@ static bool Wifi_NoneRoutineSanityInit(void *args){ // TODO unelegant
 	printf("Wifi None Init Routine! This shouldnt happen!!\n");
 	return true;
 }
-static void Wifi_NoneRoutineSanityDeinit(void){
+static bool Wifi_NoneRoutineSanityDeinit(void){
 	printf("Wifi None DeInit Routine! This shouldnt happen!!\n");
+  return true;
 }
 
 static WifiRoutine_s wifiRoutines[] = {
@@ -59,7 +60,7 @@ static WifiRoutine_s wifiRoutines[] = {
 	// 																											},
 	[WIFI_ROUTINE_NONE] = 								(WifiRoutine_s) { .name = "none",
 																													.init = Wifi_NoneRoutineSanityInit,
-																													.deinit = Wifi_NoneRoutineSanityInit,
+																													.deinit = Wifi_NoneRoutineSanityDeinit,
 																													.poll = NULL,
 																													.running = false,
 																													.requiredMode = WIFI_MODE_NONE,
@@ -123,7 +124,7 @@ static bool Wifi_RecordScanResult(cyw43_ev_scan_result_t *result)
 {
 	for (uint16_t i = 0; i < wifiContext.scanNumDevices; i++)
 	{
-		if (Wifi_CompareMac(&(result->bssid), &(wifiContext.scanBuf[i].bssid))) // we saw this before
+		if (Wifi_CompareMac((uint8_t *) &(result->bssid), (uint8_t *) &(wifiContext.scanBuf[i].bssid))) // we saw this before
 		{
 			// wifiContext.scanBuf[i] = *result;	
 			Wifi_ConvertCyw43ScanResultToLocalStruct(result, &wifiContext.scanBuf[i]);

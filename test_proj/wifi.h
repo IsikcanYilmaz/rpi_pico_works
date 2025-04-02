@@ -99,4 +99,5 @@ char** Wifi_GetStringsList(void);
 WifiRoutine_e Wifi_GetCurrentRoutine(void);
 bool Wifi_IsRoutineRunning(void);
 void Wifi_PrintInfo(void);
+bool Wifi_IsConnected(void);
 #endif

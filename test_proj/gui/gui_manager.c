@@ -76,7 +76,7 @@ void GuiMan_Stop(void)
 
 void GuiMan_StartPollTimer(void)
 {
-	add_repeating_timer_ms(GUI_MAN_POLL_PERIOD_MS, GuiMan_UpdateTimerCallback, NULL, &(guiManContext.guiManUpdateTimer));
+	add_repeating_timer_ms(GUI_MAN_POLL_PERIOD_MS, (repeating_timer_callback_t) GuiMan_UpdateTimerCallback, NULL, &(guiManContext.guiManUpdateTimer));
 }
 
 void GuiMan_StopPollTimer(void)

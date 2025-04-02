@@ -94,7 +94,7 @@ static void Button_StartTimer(void)
 {
 	if (buttonContext.timerRunning) return;
 	buttonContext.timerRunning = true;
-	add_repeating_timer_ms(BUTTON_POLL_PERIOD_MS, Button_TimerCallback, NULL, &(buttonContext.buttonTimer));
+	add_repeating_timer_ms(BUTTON_POLL_PERIOD_MS, (repeating_timer_callback_t) Button_TimerCallback, NULL, &(buttonContext.buttonTimer));
 }
 
 static void Button_StopTimer(void)

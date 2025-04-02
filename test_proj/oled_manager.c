@@ -26,7 +26,7 @@ static bool OledMan_UpdateTimerCallback(struct repeating_timer_t *t)
 
 void OledMan_StartPollTimer(void)
 {
-	add_repeating_timer_ms(OLED_MAN_POLL_PERIOD_MS, OledMan_UpdateTimerCallback, NULL, &(oledManContext.oledManUpdateTimer));
+	add_repeating_timer_ms(OLED_MAN_POLL_PERIOD_MS, (repeating_timer_callback_t) OledMan_UpdateTimerCallback, NULL, &(oledManContext.oledManUpdateTimer));
 }
 
 void OledMan_StopPollTimer(void)

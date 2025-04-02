@@ -16,5 +16,6 @@ typedef struct WatchdogContext_s_
 } WatchdogContext_s;
 
 void Watchdog_Init(void);
+bool Watchdog_CheckReset(void);
 
 #endif

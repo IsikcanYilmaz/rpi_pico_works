@@ -21,7 +21,7 @@ void Watchdog_Init(void)
 	if (watchdogContext.watchdogEnabled)
 	{
 		watchdog_enable(WATCHDOG_INTERVAL_MS, 1);
-		add_repeating_timer_ms(WATCHDOG_KICK_INTERVAL_MS, Watchdog_TimerCallback, NULL, &(watchdogContext.watchdogTimer));
+		add_repeating_timer_ms(WATCHDOG_KICK_INTERVAL_MS, (repeating_timer_callback_t) Watchdog_TimerCallback, NULL, &(watchdogContext.watchdogTimer));
 		printf("Watchdog enabled\n");
 	}
 #endif
